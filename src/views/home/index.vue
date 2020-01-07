@@ -267,6 +267,7 @@ export default {
                 display: flex;
                 flex-flow: column;
                 justify-content: space-between;
+                align-items: center;
                 .iconfont{
                     font-size: 22px;
                     color: #f78700;

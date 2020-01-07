@@ -1,6 +1,6 @@
 <template>
     <div class="add-house">
-        <van-nav-bar title="添加房产" left-arrow>
+        <van-nav-bar title="添加房产" left-arrow  @click-left="goPrevPage">
             <span slot="right" class="nav-bar-right">下一步</span>
         </van-nav-bar>
 		
@@ -20,7 +20,7 @@
             <section v-if="checked" class="add-batch-container">
                 <div class="batch-info">
                     <van-cell title="总楼层" :value="levelVal[1] + '(' + levelVal[0] + ')'" @click="openLevel" is-link />
-                    <van-cell title="每层房号数" value="5" is-link />
+                    <van-cell title="每层房号数" :value="floorVal" @click="openFloor" is-link />
                     <van-field label="房号前缀" v-model="value" placeholder="如A" />
                     <van-cell title="收款账户" value="请选择收款账户" is-link />
                 </div>
@@ -53,22 +53,31 @@
         <van-popup v-model="levelShow" position="bottom">
             <van-picker :columns="levelColumns" title="请选择楼层" show-toolbar @confirm="onConfirm1" @cancel="levelShow = false" />
         </van-popup>
+
+        <!-- 房号数量 -->
+        <van-popup v-model="floorShow" position="bottom">
+            <van-picker :columns="floorColumns" title="请选择每层房间数" :default-index="4" show-toolbar @confirm="onConfirm2" @cancel="floorShow = false" />
+        </van-popup>
+
 		
         
     </div>
 </template>
 
 <script>
+const floorNum = Array.from({length:99}, (v,k) => k+1);
 const citys = {
-    '电梯': Array.from({length:99}, (v,k) => k+1),
-    '楼梯': Array.from({length:99}, (v,k) => k+1)
+    '电梯': floorNum,
+    '楼梯': floorNum
 };
 
 export default {
     name: 'HouseIndex',
     data () {
         return {
-            msg: 'Welcome to Your Vue.js App-1111',
+            page: 1,
+            pageSize: 10,
+
             checked: false,
             value: '',
             result: [],
@@ -76,9 +85,11 @@ export default {
 
             houseType: '住宅/小区/公寓',
             levelVal: ['电梯',7],
+            floorVal: 5,
 
             typeShow: false,
             levelShow: false,
+            floorShow: false,
 
             columns: ['厂房/车间', '仓库/车库/停车位', '写字楼/办公室', '住宅/小区/公寓', '商铺/门市房'],
 
@@ -92,11 +103,38 @@ export default {
                   className: 'column2',
                   defaultIndex: 6
                 }
-            ]
+            ],
+
+            floorColumns: floorNum,
 
         }
     },
+    mounted() {
+        this.init();
+    },
     methods: {
+        // 初始化
+        init(){
+            this.getHouseList();
+        },
+
+        getHouseList(){
+            let url = "house/index";
+            let params = { 
+                uid: 100118,
+                page: this.page,
+                pageSize: this.pageSize
+            };
+            this.$post(url, params).then((res) => {
+                //返回数据的格式
+                console.log(res);
+            });
+        },
+
+        // 返回上一页
+        goPrevPage(){
+            this.$router.push({path: '/houseIndex'})
+        },
         // 选择公共设施
         toggle(index) {
             this.$refs.checkboxes[index].toggle();
@@ -119,6 +157,15 @@ export default {
         onConfirm1(value, index){
             this.levelVal = value;
             this.levelShow = false;
+        },
+        // 打开房间数
+        openFloor(){
+            this.floorShow = true;
+        },
+        // 确定房间数
+        onConfirm2(value, index){
+            this.floorVal = value;
+            this.floorShow = false;
         }
     }
 }
