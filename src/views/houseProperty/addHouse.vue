@@ -122,8 +122,8 @@ export default {
             let url = "house/index";
             let params = { 
                 uid: 100118,
-                page: this.page,
-                pageSize: this.pageSize
+                skip: this.page,
+                limit: this.pageSize
             };
             this.$post(url, params).then((res) => {
                 //返回数据的格式

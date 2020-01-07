@@ -1,11 +1,12 @@
 import axios from 'axios'
-import md5 from 'js-md5';
 
-let Base64 = require('js-base64').Base64;
+const test = require('./test');
+// const Qs = require('qs');
+const base64 = require('./base64.min')
 
 // 服务器地址
 const beforeUrl = "https://fd.fangsk.com/api/";
-const publicKey = "123456";
+const key = "123456";
 
 // http request 拦截器（所有发送的请求都要从这儿过一次），通过这个，我们就可以把token传到后台，我这里是使用sessionStorage来存储token等权限信息和用户信息，若要使用cookie可以自己封装一个函数并import便可使用
 axios.interceptors.request.use(
@@ -17,8 +18,14 @@ axios.interceptors.request.use(
         };
          // 拼接URL
         config.url = beforeUrl + config.url;
-
-        config.data = md5(Base64.encode(config.data));
+        console.log(config.data);
+        // 加密且转为formData格式
+        config.transformRequest = [function (data) {
+          let req = new FormData();
+          req.append('data', base64.base64_encode(test.authcode(encodeURI(config.data), 'ENCODE', key)));
+          return req;
+        }]
+        console.log(config);
         return config;
     },
     err => {
