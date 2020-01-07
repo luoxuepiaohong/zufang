@@ -86,10 +86,15 @@
         <ul class="three-column-grid">
             
         </ul>
+
+        <!-- 底部导航 -->
+        <footerNav></footerNav>
     </div>
 </template>
 
 <script>
+import footerNav from "@/components/footerNav"
+
 export default {
     name: 'HomePage',
     data () {
@@ -97,12 +102,18 @@ export default {
             msg: 'Welcome to Your Vue.js App-1111'
         }
     },
+
+    components: { footerNav },
+
     methods: {
         onClickLeft() {
             this.$toast({
               message: '展示图片',
               icon: 'https://img.yzcdn.cn/vant/logo.png'
             });
+        },
+        changeActive(index){
+            this.active = index;
         }
     }
 }
@@ -111,6 +122,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
     .home-page{
+        background: #f5f5f5;
         .van-nav-bar{
             background: #5788e4;
             .van-icon-search{
@@ -121,6 +133,9 @@ export default {
                 color: #fff;
                 font-size: 18px;
                 font-weight: bold;
+            }
+            &::after {
+                border-bottom-width: 0;
             }
         }
         .home-header{
@@ -199,12 +214,13 @@ export default {
             margin: 5px 0;
             .two-column-grid-item{
                 width: 50%;
-                height: 55px;
+                height: 65px;
                 float: left;
                 background: #fff;
                 border: 1px solid #f5f5f5;
                 border-bottom: 0;
                 border-left: 0;
+                box-sizing: border-box;
                 padding: 10px 18px 6px;
                 display: flex;
                 justify-content: space-between;
@@ -242,6 +258,7 @@ export default {
             overflow: hidden;
             clear: both;
             .three-row-item{
+                box-sizing: border-box;
                 height: 90px;
                 width: calc(100%/3);
                 background: #fff;
