@@ -18,14 +18,12 @@ axios.interceptors.request.use(
         };
          // 拼接URL
         config.url = beforeUrl + config.url;
-        console.log(config.data);
         // 加密且转为formData格式
         config.transformRequest = [function (data) {
           let req = new FormData();
-          req.append('data', base64.base64_encode(test.authcode(encodeURI(config.data), 'ENCODE', key)));
+          req.append('data', base64.base64_encode(test.authcode(encodeURI(JSON.stringify(config.data)), 'ENCODE', key)));
           return req;
         }]
-        console.log(config);
         return config;
     },
     err => {
