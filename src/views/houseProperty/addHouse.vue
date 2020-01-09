@@ -9,8 +9,8 @@
             <section>
                 <van-cell title="房产名" value="请选择" is-link />
                 <van-cell title="详细地址" value="请选择" is-link />
-                <van-cell title="房产类型" :value="houseType" is-link @click="openType" />
-                <van-cell title="收款账户" value="请选择收款账户" is-link />
+                <van-cell title="房产类型" :value="typeVal" is-link @click="openPopup('type')" />
+                <van-cell title="收款账户" value="请选择收款账户" is-link to="accountList" />
             </section>
 
             <p class="tips">收款账户将附加在账单中显示</p>
@@ -19,8 +19,8 @@
 
             <section v-if="checked" class="add-batch-container">
                 <div class="batch-info">
-                    <van-cell title="总楼层" :value="levelVal[1] + '(' + levelVal[0] + ')'" @click="openLevel" is-link />
-                    <van-cell title="每层房号数" :value="floorVal" @click="openFloor" is-link />
+                    <van-cell title="总楼层" :value="levelVal[1] + '(' + levelVal[0] + ')'" @click="openPopup('level')" is-link />
+                    <van-cell title="每层房号数" :value="floorVal" @click="openPopup('floor')" is-link />
                     <van-field label="房号前缀" v-model="value" placeholder="如A" />
                     <van-cell title="收款账户" value="请选择收款账户" is-link />
                 </div>
@@ -40,27 +40,28 @@
                         </van-cell-group>
                     </van-checkbox-group>
                 </div>
-                
             </section>
         </section>
         
         <!-- 房产类型 -->
         <van-popup v-model="typeShow" position="bottom">
-            <van-picker :columns="columns" title="请选择房产类型" :default-index="3" show-toolbar @confirm="onConfirm" @cancel="typeShow = false" />
+            <van-picker :columns="typeColumns" title="请选择房产类型" :default-index="3" show-toolbar @confirm="onConfirm" @cancel="typeShow = false" />
         </van-popup>
 
         <!-- 楼层 -->
         <van-popup v-model="levelShow" position="bottom">
-            <van-picker :columns="levelColumns" title="请选择楼层" show-toolbar @confirm="onConfirm1" @cancel="levelShow = false" />
+            <van-picker :columns="levelColumns" title="请选择楼层" show-toolbar @confirm="onConfirm" @cancel="levelShow = false" />
         </van-popup>
 
         <!-- 房号数量 -->
         <van-popup v-model="floorShow" position="bottom">
-            <van-picker :columns="floorColumns" title="请选择每层房间数" :default-index="4" show-toolbar @confirm="onConfirm2" @cancel="floorShow = false" />
+            <van-picker :columns="floorColumns" title="请选择每层房间数" :default-index="4" show-toolbar @confirm="onConfirm" @cancel="floorShow = false" />
         </van-popup>
 
 		
-        
+        <transition name="slide-right" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 
@@ -72,7 +73,7 @@ const citys = {
 };
 
 export default {
-    name: 'HouseIndex',
+    name: 'AddHouse',
     data () {
         return {
             page: 1,
@@ -83,7 +84,8 @@ export default {
             result: [],
             list: ['健身房','游泳池','洗衣房','停车位','收快递'],
 
-            houseType: '住宅/小区/公寓',
+            // 值
+            typeVal: '住宅/小区/公寓',
             levelVal: ['电梯',7],
             floorVal: 5,
 
@@ -91,8 +93,10 @@ export default {
             levelShow: false,
             floorShow: false,
 
-            columns: ['厂房/车间', '仓库/车库/停车位', '写字楼/办公室', '住宅/小区/公寓', '商铺/门市房'],
+            popupType: '',
 
+            // 上拉菜单
+            typeColumns: ['厂房/车间', '仓库/车库/停车位', '写字楼/办公室', '住宅/小区/公寓', '商铺/门市房'],
             levelColumns:[
                 {
                   values: Object.keys(citys),
@@ -104,7 +108,6 @@ export default {
                   defaultIndex: 6
                 }
             ],
-
             floorColumns: floorNum,
 
         }
@@ -139,33 +142,17 @@ export default {
         toggle(index) {
             this.$refs.checkboxes[index].toggle();
         },
-        // 打开房产类型选择器
-        openType(){
-            this.typeShow = true;
+
+        // 打开上拉菜单
+        openPopup(type){
+            this.popupType = type;
+            this[this.popupType + 'Show'] = true;
         },
-        // 确定房产类型
+        // 上拉菜单确定选择
         onConfirm(value, index) {
             // this.$toast(`当前值：${value}, 当前索引：${index}`);
-            this.houseType = value;
-            this.typeShow = false;
-        },
-        // 打开楼层
-        openLevel(){
-            this.levelShow = true;
-        },
-        // 确定楼层
-        onConfirm1(value, index){
-            this.levelVal = value;
-            this.levelShow = false;
-        },
-        // 打开房间数
-        openFloor(){
-            this.floorShow = true;
-        },
-        // 确定房间数
-        onConfirm2(value, index){
-            this.floorVal = value;
-            this.floorShow = false;
+            this[this.popupType + 'Val'] = value;
+            this[this.popupType + 'Show'] = false;
         }
     }
 }
