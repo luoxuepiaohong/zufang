@@ -27,7 +27,8 @@ Vue.prototype.$post=post;
 Vue.prototype.$fetch=fetch;
 Vue.prototype.$patch=patch;
 Vue.prototype.$put=put;
-
+//引入登录
+import login from '@/common/js/login.js'
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
