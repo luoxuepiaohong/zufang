@@ -8,6 +8,9 @@ const base64 = require('./base64.min')
 const beforeUrl = "https://fd.fangsk.com/api/";
 const key = "123456";
 
+// 引入提示
+import { Toast } from 'vant';
+
 // http request 拦截器（所有发送的请求都要从这儿过一次），通过这个，我们就可以把token传到后台，我这里是使用sessionStorage来存储token等权限信息和用户信息，若要使用cookie可以自己封装一个函数并import便可使用
 axios.interceptors.request.use(
     config => {
@@ -20,9 +23,9 @@ axios.interceptors.request.use(
         config.url = beforeUrl + config.url;
         // 加密且转为formData格式
         config.transformRequest = [function (data) {
-          let req = new FormData();
-          req.append('data', base64.base64_encode(test.authcode(encodeURI(JSON.stringify(config.data)), 'ENCODE', key)));
-          return req;
+            let req = new FormData();
+            req.append('data', base64.base64_encode(test.authcode(encodeURI(JSON.stringify(config.data)), 'ENCODE', key)));
+            return req;
         }]
         return config;
     },
@@ -35,6 +38,11 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     response => {
         // Loading.close();    /* 移除loading */
+        if(response.data.code != 1){
+            Toast.fail({
+                message: response.data.msg
+            });
+        }
         return response;
     },
     error => {
@@ -51,17 +59,17 @@ axios.interceptors.response.use(
  */
 
 export function fetch(url,params={}){
-  return new Promise((resolve,reject) => {
-      axios.get(url,{
-          params:params
-      })
-      .then(response => {
-          resolve(response.data);
-      })
-      .catch(err => {
-          reject(err)
-      })
-  })
+    return new Promise((resolve,reject) => {
+        axios.get(url,{
+            params:params
+        })
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(err => {
+            reject(err)
+        })
+    })
 }
 
 
@@ -73,13 +81,13 @@ export function fetch(url,params={}){
  */
 
  export function post(url,data = {}){
-   return new Promise((resolve,reject) => {
-     axios.post(url,data).then(response => {
-          resolve(response.data);
-      },err => {
-          reject(err)
-      })
-   })
+    return new Promise((resolve,reject) => {
+        axios.post(url,data).then(response => {
+            resolve(response.data);
+        },err => {
+            reject(err)
+        })
+    })
  }
 
  /**
@@ -90,14 +98,13 @@ export function fetch(url,params={}){
  */
 
 export function patch(url,data = {}){
-  return new Promise((resolve,reject) => {
-    axios.patch(url,data)
-         .then(response => {
-           resolve(response.data);
-         },err => {
-           reject(err)
-         })
-  })
+    return new Promise((resolve,reject) => {
+        axios.patch(url,data).then(response => {
+            resolve(response.data);
+        },err => {
+            reject(err)
+        })
+    })
 }
 
  /**
@@ -108,12 +115,11 @@ export function patch(url,data = {}){
  */
 
 export function put(url,data = {}){
-  return new Promise((resolve,reject) => {
-    axios.put(url,data)
-         .then(response => {
-           resolve(response.data);
-         },err => {
-           reject(err)
-         })
-  })
+    return new Promise((resolve,reject) => {
+        axios.put(url,data).then(response => {
+            resolve(response.data);
+        },err => {
+            reject(err)
+        })
+    })
 }

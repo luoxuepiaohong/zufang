@@ -41,6 +41,10 @@
 
 		<!-- 底部导航 -->
         <footerNav></footerNav>
+
+        <transition name="slide-right" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 

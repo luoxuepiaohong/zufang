@@ -1,50 +1,49 @@
 <template>
     <div class="account-list">
         <van-nav-bar title="收款账户" left-arrow  @click-left="goPrevPage">
-            <span slot="right" class="nav-bar-right">保存</span>
+            <span slot="right" class="nav-bar-right" @click="saveSelect">保存</span>
         </van-nav-bar>
 
         <!-- 添加收款账户 -->
-        <section class="header-add"><van-icon name="add" />添加收款账户</section>
+        <section class="header-add" @click="sheetShow = true"><van-icon name="add" />添加收款账户</section>
 		
         <!-- 账户列表 -->
         <van-pull-refresh class="list-container" v-model="isLoading" @refresh="onRefresh">
         	<van-radio-group v-model="radio">
 		        <ul>
-		        	<li>
-		        		<van-swipe-cell>
-						  	<van-cell clickable @click="radio = '1'">
-						  		<span slot="title">微信</span>
-						  		<van-radio slot="right-icon" name="1" />
-						  		<span slot="label">qiao896388123</span>
-						  	</van-cell>
-							<template slot="right">
-								<van-button square type="info" text="修改"/>
-							    <van-button square type="danger" text="删除" />
-							</template>
-						</van-swipe-cell>
-		        	</li>
-		        	<li>
-		        		<van-swipe-cell>
-						  	<van-cell clickable @click="radio = '2'">
-						  		<span slot="title">支付宝</span>
-						  		<van-radio slot="right-icon" name="2" />
-						  		<span slot="label">13800138000</span>
-						  	</van-cell>
-							<template slot="right">
-								<van-button square type="info" text="修改"/>
-							    <van-button square type="danger" text="删除" />
-							</template>
-						</van-swipe-cell>
-		        	</li>
+                    <li v-for="(item, key) in accountList" :key="key">
+                        <van-swipe-cell>
+                            <van-cell clickable @click="radio = item.id">
+                                <span slot="title" v-if="item.type == 1">{{item.bank}}<i class="iconfont icon-yinlian"></i></span>
+                                <span slot="title" v-if="item.type == 2">微信<i class="iconfont icon-weixin"></i></span>
+                                <span slot="title" v-if="item.type == 3">支付宝<i class="iconfont icon-umidd17"></i></span>
+                                <van-radio slot="right-icon" :name="item.id" />
+                                <span slot="label" v-if="item.type == 1">{{item.card_no}}</span>
+                                <span slot="label" v-if="item.type == 2">{{item.weixin}}</span>
+                                <span slot="label" v-if="item.type == 3">{{item.alipay}}</span>
+                            </van-cell>
+                            <template slot="right">
+                                <van-button square type="info" @click.native="editAccount(item)" text="修改"/>
+                                <van-button square type="danger" @click.native="delAccount(item.id, key)" text="删除" />
+                            </template>
+                        </van-swipe-cell>
+                    </li>
 		        </ul>
 	        </van-radio-group>
 	    </van-pull-refresh>
 
 	    <!-- 账户类型 -->
-        <van-popup v-model="popupStatus" position="bottom">
-            <van-picker :columns="columns" @cancel="floorShow = false" />
-        </van-popup>
+        <van-action-sheet
+          v-model="sheetShow"
+          :actions="actions"
+          cancel-text="取消"
+          @cancel="sheetShow = false"
+          @select="onSelect"
+        />
+
+        <transition name="slide-right" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 
@@ -53,11 +52,24 @@ export default {
     name: 'AccountList',
     data () {
         return {
-           isLoading: false,
-           radio: '1',
-           popupStatus: false,
-           columns: ['银行卡','微信','支付宝','其他']
+            isLoading: false,
+            radio: '',
+            sheetShow: false,
+            actions: [
+                { name: '银行卡', type: 1 },
+                { name: '微信', type: 2 },
+                { name: '支付宝', type: 3 },
+                { name: '其他', type: 4 }
+            ],
+
+            accountList: [],
+
+            skip: 1,
+            limit: 10,
         }
+    },
+    created(){
+
     },
     mounted() {
         this.init();
@@ -65,21 +77,48 @@ export default {
     methods: {
         // 初始化
         init(){
-            // this.getHouseList();
+            this.getAccountList();
         },
 
-        // getHouseList(){
-        //     let url = "house/index";
-        //     let params = { 
-        //         uid: 100118,
-        //         skip: this.page,
-        //         limit: this.pageSize
-        //     };
-        //     this.$post(url, params).then((res) => {
-        //         //返回数据的格式
-        //         console.log(res);
-        //     });
-        // },
+        // 获取账户列表
+        getAccountList(){
+            let url = "Gettype/index";
+            let params = { 
+                uid: 100118,
+                skip: this.skip, 
+                limit: this.limit 
+            };
+
+            this.$post(url, params).then((res) => {
+                //返回数据的格式
+                this.accountList = res.data;
+                console.log(this.accountList);
+            });
+        },
+
+        // 选择收款账户类型
+        onSelect(item){
+            this.sheetShow = false;
+            this.$router.push({path: '/addAccount',query: item})
+        },
+
+        // 编辑收款账户
+        editAccount(item){
+            this.$router.push({path: '/addAccount',query: item})
+        },
+
+        // 删除收款账户
+        delAccount(id,index){
+            let url = "Gettype/delType";
+            let params = { uid: 100118, id: id };
+
+            this.$post(url, params).then((res) => {
+                //返回数据的格式
+                if(res.code == 1){
+                    this.accountList.splice(index,1); 
+                }
+            });
+        },
 
         // 返回上一页
         goPrevPage(){
@@ -90,7 +129,15 @@ export default {
 		        this.$toast('刷新成功');
 		        this.isLoading = false;
 		    }, 500);
-	    }
+	    },
+
+        // 保存
+        saveSelect(){
+            if(this.radio == ''){ return this.$toast.fail('请选择收款账户'); }
+
+            this.$emit('selectAccount', this.radio);
+            this.$router.push({path: '/addHouse'})
+        }
     }
 }
 </script>
@@ -104,7 +151,7 @@ export default {
     	left: 0;
     	height: 100vh;
     	background: #f5f5f5;
-    	z-index: 99;
+    	z-index: 299;
         .van-nav-bar{
             background: #5788e4;
             .van-icon-arrow-left:before{
@@ -143,6 +190,18 @@ export default {
         		.van-cell{
         			border-radius: 5px;
         			margin-bottom: 10px;
+                    .iconfont{
+                        margin-left: 5px;
+                        &.icon-yinlian{
+                            color: #999;
+                        }
+                        &.icon-weixin{
+                            color: rgb(97, 186, 70);
+                        }
+                        &.icon-umidd17{
+                            color: rgb(18, 150, 219);
+                        }
+                    }
         		}
         		.van-button{
     				height: 100%;

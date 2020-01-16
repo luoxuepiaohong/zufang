@@ -22,7 +22,6 @@
                     <van-cell title="总楼层" :value="levelVal[1] + '(' + levelVal[0] + ')'" @click="openPopup('level')" is-link />
                     <van-cell title="每层房号数" :value="floorVal" @click="openPopup('floor')" is-link />
                     <van-field label="房号前缀" v-model="value" placeholder="如A" />
-                    <van-cell title="收款账户" value="请选择收款账户" is-link />
                 </div>
                 
                 <div class="batch-facility">
@@ -60,7 +59,7 @@
 
 		
         <transition name="slide-right" mode="out-in">
-            <router-view></router-view>
+            <router-view v-on:selectAccount="selectAccount"></router-view>
         </transition>
     </div>
 </template>
@@ -153,6 +152,11 @@ export default {
             // this.$toast(`当前值：${value}, 当前索引：${index}`);
             this[this.popupType + 'Val'] = value;
             this[this.popupType + 'Show'] = false;
+        },
+
+        // 获取选择的账户信息
+        selectAccount(data){
+            console.log('获取选择的账户信息:',data);
         }
     }
 }
@@ -161,8 +165,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
     .add-house{
-    	height: 100vh;
     	background: #f5f5f5;
+        position: fixed;
+        width: 100vw;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        background: #f5f5f5;
+        z-index: 99;
         .van-nav-bar{
             background: #5788e4;
             .van-icon-arrow-left:before{
