@@ -1,7 +1,7 @@
 <template>
     <div class="add-house">
         <van-nav-bar title="添加房产" left-arrow  @click-left="goPrevPage">
-            <span slot="right" class="nav-bar-right">下一步</span>
+            <span slot="right" class="nav-bar-right" @click="nextStep">下一步</span>
         </van-nav-bar>
 		
         <!-- 添加房产需要填写的资料容器 -->
@@ -117,20 +117,6 @@ export default {
     methods: {
         // 初始化
         init(){
-            this.getHouseList();
-        },
-
-        getHouseList(){
-            let url = "house/index";
-            let params = { 
-                uid: 100118,
-                skip: this.page,
-                limit: this.pageSize
-            };
-            this.$post(url, params).then((res) => {
-                //返回数据的格式
-                console.log(res);
-            });
         },
 
         // 返回上一页
@@ -157,6 +143,15 @@ export default {
         // 获取选择的账户信息
         selectAccount(data){
             console.log('获取选择的账户信息:',data);
+        },
+
+        // 下一步
+        nextStep(){
+            // 判断是否填写房产名和详细地址
+            // if(){ return this.$toast.fail('房产名不能为空'); }
+            // if(){ return this.$toast.fail('详细地址不能为空'); }
+            
+            this.$router.push({path: '/addRoomNumber'})
         }
     }
 }

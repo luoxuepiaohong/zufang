@@ -65,7 +65,6 @@ export default {
         }
     },
     created(){
-    	console.log(this.$route);
     	if(this.$route.query){
     		let paramObj = this.$route.query;
     		if(paramObj.hasOwnProperty('id')){
