@@ -150,8 +150,13 @@ export default {
             // 判断是否填写房产名和详细地址
             // if(){ return this.$toast.fail('房产名不能为空'); }
             // if(){ return this.$toast.fail('详细地址不能为空'); }
+            if(this.checked){
+                this.$router.push({path: '/batchAddRoom'})
+            }else{
+                this.$router.push({path: '/addRoomNumber'})
+            }
             
-            this.$router.push({path: '/addRoomNumber'})
+            
         }
     }
 }

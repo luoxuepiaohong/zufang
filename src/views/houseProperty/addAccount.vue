@@ -99,7 +99,7 @@ export default {
             this.$post(url, params).then((res) => {
                 //返回数据的格式
                 if(res.code == 1){
-                	// this.$router.push({path: '/accountList'})
+                    this.$emit('listenSaveAccount',this.accountInfo);
                 	this.goPrevPage();
                 }
             });
@@ -107,15 +107,22 @@ export default {
 
         // 删除收款账户
         delAccount(){
-        	let url = "Gettype/delType";
-            let params = { uid: 100118, id: this.accountInfo.id };
+            this.$dialog.confirm({
+                title: '提示',
+                message: '是否删除该账户？'
+            }).then(() => {
+                let url = "Gettype/delType";
+                let params = { uid: 100118, id: this.accountInfo.id };
 
-            this.$post(url, params).then((res) => {
-                //返回数据的格式
-                if(res.code == 1){
-                	this.goPrevPage();
-                }
-            });
+                this.$post(url, params).then((res) => {
+                    // 返回数据的格式
+                    if(res.code == 1){
+                        this.$emit('listenDelAccount',this.accountInfo.id);
+                        this.goPrevPage();
+                    }
+                });
+            })
+        	
         }
     }
 }

@@ -8,7 +8,7 @@
         <section class="header-add" @click="sheetShow = true"><van-icon name="add" />添加收款账户</section>
 		
         <!-- 账户列表 -->
-        <van-pull-refresh class="list-container" v-model="isLoading" @refresh="onRefresh">
+        <van-list class="list-container" v-model="loading" :finished="finished" :offset="100" finished-text="没有更多了" @load="onLoad">
         	<van-radio-group v-model="radio">
 		        <ul>
                     <li v-for="(item, key) in accountList" :key="key">
@@ -24,13 +24,13 @@
                             </van-cell>
                             <template slot="right">
                                 <van-button square type="info" @click.native="editAccount(item)" text="修改"/>
-                                <van-button square type="danger" @click.native="delAccount(item.id, key)" text="删除" />
+                                <van-button square type="danger" @click.native="delAccount(item.id)" text="删除" />
                             </template>
                         </van-swipe-cell>
                     </li>
 		        </ul>
 	        </van-radio-group>
-	    </van-pull-refresh>
+        </van-list>
 
 	    <!-- 账户类型 -->
         <van-action-sheet
@@ -42,7 +42,7 @@
         />
 
         <transition name="slide-right" mode="out-in">
-            <router-view></router-view>
+            <router-view v-on:listenDelAccount="delAccount" v-on:listenSaveAccount="saveAccount"></router-view>
         </transition>
     </div>
 </template>
@@ -52,7 +52,10 @@ export default {
     name: 'AccountList',
     data () {
         return {
-            isLoading: false,
+            loading: false,
+            finished: false,
+
+
             radio: '',
             sheetShow: false,
             actions: [
@@ -64,7 +67,7 @@ export default {
 
             accountList: [],
 
-            skip: 1,
+            skip: 0,
             limit: 10,
         }
     },
@@ -92,7 +95,6 @@ export default {
             this.$post(url, params).then((res) => {
                 //返回数据的格式
                 this.accountList = res.data;
-                console.log(this.accountList);
             });
         },
 
@@ -108,7 +110,10 @@ export default {
         },
 
         // 删除收款账户
-        delAccount(id,index){
+        delAccount(id){
+            // 获取该账户所处的数组下标
+            let index = this.accountList.findIndex(item => item.id == id);
+
             let url = "Gettype/delType";
             let params = { uid: 100118, id: id };
 
@@ -120,16 +125,40 @@ export default {
             });
         },
 
+        // 监听编辑账户事件
+        saveAccount(obj){
+            let index = this.accountList.findIndex(item => item.id == obj.id);
+            index > -1 ? (this.accountList[index] = obj) : this.accountList.unshift(obj);
+        },
+
         // 返回上一页
         goPrevPage(){
             this.$router.push({path: '/addHouse'})
         },
-        onRefresh() {
-		    setTimeout(() => {
-		        this.$toast('刷新成功');
-		        this.isLoading = false;
-		    }, 500);
-	    },
+        // 滚动加载
+        onLoad() {
+            // 异步更新数据
+            this.skip++;
+            let url = "Gettype/index";
+            let params = { 
+                uid: 100118,
+                skip: this.skip, 
+                limit: this.limit 
+            };
+
+            this.$post(url, params).then((res) => {
+                //返回数据的格式
+                this.accountList = [...this.accountList, ...res.data];
+                // 去重
+                this.accountList = Array.from(new Set([...this.accountList]));
+                // 加载状态结束
+                this.loading = false;
+                // 数据全部加载完成
+                if(res.data.length < this.limit){ 
+                    this.finished = true; 
+                }
+            });
+        },
 
         // 保存
         saveSelect(){
@@ -184,6 +213,7 @@ export default {
         .list-container{
         	height: calc(100vh - 96px);
         	padding: 0 10px;
+            overflow: scroll;
         	ul{
         		height: calc(100vh - 141px);;
         		overflow: scroll;
