@@ -1,55 +1,40 @@
 <template>
-    <div class="add-house">
-        <van-nav-bar title="添加房产" left-arrow  @click-left="goPrevPage">
-            <span slot="right" class="nav-bar-right" @click="nextStep">下一步</span>
+    <div class="edit-house">
+        <van-nav-bar title="修改房产" left-arrow  @click-left="goPrevPage">
+            <span slot="right" class="nav-bar-right" @click="saveEdit">保存</span>
         </van-nav-bar>
 		
         <!-- 添加房产需要填写的资料容器 -->
-        <section class="add-house-container">
+        <section class="edit-house-container">
             <section>
                 <van-cell title="房产名" value="请选择" is-link />
                 <van-cell title="详细地址" value="请选择" is-link />
                 <van-cell title="房产类型" :value="typeVal" is-link @click="openPopup('type')" />
-                <van-cell title="收款账户" value="请选择收款账户" is-link to="accountList" />
+                <van-cell title="收款账户" value="请选择收款账户" is-link to="editOfAccountList" />
             </section>
 
             <p class="tips">收款账户将附加在账单中显示</p>
 
-            <van-switch-cell v-model="checked" title="批量添加房号" />
-
-            <section v-if="checked" class="add-batch-container">
-                <div class="batch-info">
-                    <van-cell title="总楼层" :value="levelVal[1] + '(' + levelVal[0] + ')'" @click="openPopup('level')" is-link />
-                    <van-cell title="每层房号数" :value="floorVal" @click="openPopup('floor')" is-link />
-                    <van-field label="房号前缀" v-model="value" placeholder="如A" />
-                </div>
-                
-                <div class="batch-facility">
-                    <h4>公共设施</h4>
-                    <van-checkbox-group v-model="result">
-                        <van-cell-group>
-                            <van-cell v-for="(item, index) in list"
-                              clickable
-                              :key="item"
-                              :title="item"
-                              @click="toggle(index)"
-                            >
-                              <van-checkbox :name="item" ref="checkboxes" slot="right-icon"/>
-                            </van-cell>
-                        </van-cell-group>
-                    </van-checkbox-group>
-                </div>
-            </section>
+            <div class="batch-facility">
+                <h4>公共设施</h4>
+                <van-checkbox-group v-model="result">
+                    <van-cell-group>
+                        <van-cell v-for="(item, index) in list"
+                          clickable
+                          :key="item"
+                          :title="item"
+                          @click="toggle(index)"
+                        >
+                          <van-checkbox :name="item" ref="checkboxes" slot="right-icon"/>
+                        </van-cell>
+                    </van-cell-group>
+                </van-checkbox-group>
+            </div>
         </section>
         
         <!-- 房产类型 -->
         <van-popup v-model="typeShow" position="bottom">
             <van-picker :columns="typeColumns" title="请选择房产类型" :default-index="3" show-toolbar @confirm="onConfirm" @cancel="typeShow = false" />
-        </van-popup>
-
-        <!-- 楼层 -->
-        <van-popup v-model="levelShow" position="bottom">
-            <van-picker :columns="levelColumns" title="请选择楼层" show-toolbar @confirm="onConfirm" @cancel="levelShow = false" />
         </van-popup>
 
         <!-- 房号数量 -->
@@ -66,10 +51,6 @@
 
 <script>
 const floorNum = Array.from({length:99}, (v,k) => k+1);
-const citys = {
-    '电梯': floorNum,
-    '楼梯': floorNum
-};
 
 export default {
     name: 'AddHouse',
@@ -78,35 +59,20 @@ export default {
             page: 1,
             pageSize: 10,
 
-            checked: false,
-            value: '',
             result: [],
             list: ['健身房','游泳池','洗衣房','停车位','收快递'],
 
             // 值
             typeVal: '住宅/小区/公寓',
-            levelVal: ['电梯',7],
             floorVal: 5,
 
             typeShow: false,
-            levelShow: false,
             floorShow: false,
 
             popupType: '',
 
             // 上拉菜单
             typeColumns: ['厂房/车间', '仓库/车库/停车位', '写字楼/办公室', '住宅/小区/公寓', '商铺/门市房'],
-            levelColumns:[
-                {
-                  values: Object.keys(citys),
-                  className: 'column1'
-                },
-                {
-                  values: citys['电梯'],
-                  className: 'column2',
-                  defaultIndex: 6
-                }
-            ],
             floorColumns: floorNum,
 
         }
@@ -121,8 +87,8 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/houseIndex'})
-            // this.$router.back(-1);
+            // this.$router.push({path: '/houseIndex'})
+            this.$router.back(-1);
         },
         // 选择公共设施
         toggle(index) {
@@ -136,7 +102,6 @@ export default {
         },
         // 上拉菜单确定选择
         onConfirm(value, index) {
-            // this.$toast(`当前值：${value}, 当前索引：${index}`);
             this[this.popupType + 'Val'] = value;
             this[this.popupType + 'Show'] = false;
         },
@@ -146,18 +111,9 @@ export default {
             console.log('获取选择的账户信息:',data);
         },
 
-        // 下一步
-        nextStep(){
-            // 判断是否填写房产名和详细地址
-            // if(){ return this.$toast.fail('房产名不能为空'); }
-            // if(){ return this.$toast.fail('详细地址不能为空'); }
-            if(this.checked){
-                this.$router.push({path: '/batchAddRoom'})
-            }else{
-                this.$router.push({path: '/addRoomNumber'})
-            }
-            
-            
+        // 保存信息
+        saveEdit(){
+            this.goPrevPage();
         }
     }
 }
@@ -165,7 +121,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
-    .add-house{
+    .edit-house{
     	background: #f5f5f5;
         position: fixed;
         width: 100vw;
@@ -190,7 +146,7 @@ export default {
             }
         }
         
-        .add-house-container{
+        .edit-house-container{
             height: calc(100vh - 50px);
             overflow: scroll;
             padding-top: 10px;
@@ -203,21 +159,15 @@ export default {
                 margin: 0;
                 margin-left: 16px;
             }
-            .add-batch-container{
-                margin-top: 10px;
-                .batch-info{
-                    margin-bottom: 10px;
-                }
-                .batch-facility{
-                    background: #fff;
-                    h4{
-                        color: #323233;
-                        font-size: 14px;
-                        font-weight: 500;
-                        margin: 0;
-                        margin-left: 16px;
-                        line-height: 40px;
-                    }
+            .batch-facility{
+                background: #fff;
+                h4{
+                    color: #323233;
+                    font-size: 14px;
+                    font-weight: 500;
+                    margin: 0;
+                    margin-left: 16px;
+                    line-height: 40px;
                 }
             }
         }

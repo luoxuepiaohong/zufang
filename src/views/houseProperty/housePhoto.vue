@@ -30,7 +30,8 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/addRoomNumber'})
+            // this.$router.push({path: '/addRoomNumber'})
+            this.$router.back(-1);
         },
 
         // 存储sessionstorage

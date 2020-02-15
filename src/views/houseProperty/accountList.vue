@@ -101,12 +101,15 @@ export default {
         // 选择收款账户类型
         onSelect(item){
             this.sheetShow = false;
-            this.$router.push({path: '/addAccount',query: item})
+
+            let jumpPath = this.$router.history.current.name == 'AccountList' ? '/addAccount' : 'editOfaddAccount';
+            this.$router.push({path:  jumpPath, query: item})
         },
 
         // 编辑收款账户
         editAccount(item){
-            this.$router.push({path: '/addAccount',query: item})
+            let jumpPath = this.$router.history.current.name == 'AccountList' ? '/addAccount' : 'editOfaddAccount';
+            this.$router.push({path: jumpPath, query: item})
         },
 
         // 删除收款账户
@@ -133,7 +136,8 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/addHouse'})
+            // this.$router.push({path: '/addHouse'})
+            this.$router.back(-1);
         },
         // 滚动加载
         onLoad() {

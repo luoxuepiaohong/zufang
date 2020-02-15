@@ -39,7 +39,8 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/roomConfig'})
+            // this.$router.push({path: '/roomConfig'})
+            this.$router.back(-1);
         },  
 
         // 打开单元格侧边栏
@@ -88,7 +89,7 @@ export default {
         left: 0;
         height: 100vh;
         background: #f5f5f5;
-        z-index: 399;  
+        z-index: 599;  
         .van-nav-bar{
             background: #5788e4;
             .van-icon-arrow-left:before{

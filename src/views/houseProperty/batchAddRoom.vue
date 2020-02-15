@@ -1,7 +1,13 @@
 <template>
     <div class="batch-add-room">
-        <van-nav-bar title="确认房号" left-arrow  @click-left="goPrevPage">
+    	<!-- 批量添加时确认房号 -->
+        <van-nav-bar title="确认房号" left-arrow  @click-left="goPrevPage" v-if="this.$router.history.current.name == 'BatchAddRoom'">
         	<span slot="right" class="nav-bar-right" @click="nextStep">下一步</span>
+        </van-nav-bar>
+        <!-- 应用房间时确认房号 -->
+        <van-nav-bar title="确认房号" v-else>
+        	<span slot="left" class="nav-bar-right" @click="goPrevPage">上一步</span>
+        	<span slot="right" class="nav-bar-right" @click="confirmSave">保存</span>
         </van-nav-bar>
 		
 		<!--  -->
@@ -20,6 +26,10 @@
                 </van-cell-group>
             </van-checkbox-group>
         </section>
+
+        <transition name="slide-right" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 
@@ -97,8 +107,8 @@ export default {
     },
     created(){
     	let item = {
-    		level: 7,
-    		room: 11,
+    		level: 6,
+    		room: 5,
     	}
     	for(let i=1; i<=item.level; i++){
     		this.roomList.push({
@@ -129,21 +139,21 @@ export default {
             this.$router.push({path: '/addHouse'})
         },  
 
+        // 上一步
+        lastStep(){
+        	this.$router.back(-1);
+        },
         // 下一步
         nextStep(){
-
+        	this.$router.push({path: '/batchConfigList'})
         },
 
         // 选择
         toggle(index) {
             this.$refs.checkboxes[index].toggle();
-            // if(){          //选中
-            	for(let i in this.roomList[index].room){
-            		this.roomList[index].room[i].checked = !this.$refs.checkboxes[index].checked
-            	}
-            // }else{                                              //取消选中
-            // 	console.log('全不选');
-            // }
+            for(let i in this.roomList[index].room){
+            	this.roomList[index].room[i].checked = !this.$refs.checkboxes[index].checked
+            }
         },
 
         // 点击房间
@@ -164,6 +174,12 @@ export default {
         		this.$refs.checkboxes[key].checked = true;
         	}
 
+        },
+
+
+        // 保存
+        confirmSave(){
+        	this.lastStep();
         }
     }
 }

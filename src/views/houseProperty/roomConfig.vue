@@ -1,6 +1,8 @@
 <template>
     <div class="room-config">
-        <van-nav-bar title="房间配置" left-arrow  @click-left="goPrevPage"></van-nav-bar>
+        <van-nav-bar title="房间配置" left-arrow  @click-left="goPrevPage">
+            <span slot="right" class="nav-bar-right" @click="saveSelect">完成</span>
+        </van-nav-bar>
         
         <section class="room-config-list">
         	<!-- 选项列表 -->
@@ -22,7 +24,8 @@
 			<!-- 底部按钮 -->
 			<div class="list-btn">
 				<van-button icon="add" plain @click="openDialog">添加自定义配置</van-button>
-				<van-button icon="setting" type="primary" color="linear-gradient(to right, #4bb0ff, #6149f6)" to="/customConfig">管理自定义配置</van-button>
+                <!-- 判断当前配置页是批量配置还是单房配置 -->
+				<van-button icon="setting" type="primary" color="linear-gradient(to right, #4bb0ff, #6149f6)" :to="{path: this.$router.history.current.name == 'RoomConfig' ? '/customConfig' : 'batchCustomConfig'}">管理自定义配置</van-button>
 			</div>
         </section>
 
@@ -48,11 +51,14 @@ export default {
             list2: ['测试'],
 
             dialogShow: false,
-            setVal: ''
+            setVal: '',
+
+
         }
     },
     mounted() {
         this.init();
+        console.log(this.$router,this.$router.history.current);
     },
     methods: {
         // 初始化
@@ -61,7 +67,8 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/addRoomNumber'})
+            // this.$router.push({path: '/addRoomNumber'})
+            this.$router.back(-1);
         },  
 
         toggle(index) {
@@ -82,7 +89,12 @@ export default {
   			} else {
     			done();
   			}
-    	}
+    	},
+
+        // 保存选择
+        saveSelect(){
+            this.goPrevPage();
+        }
     }
 }
 </script>
@@ -96,7 +108,7 @@ export default {
         left: 0;
         height: 100vh;
         background: #f5f5f5;
-        z-index: 299;  
+        z-index: 499;  
         .van-nav-bar{
             background: #5788e4;
             .van-icon-arrow-left:before{

@@ -13,7 +13,9 @@
 	        <ul>
 	        	<li>
 	        		<van-swipe-cell>
-					  	<van-cell title="赛格广场" value="共2间住宅，闲置1间" is-link />
+					  	<van-cell title="赛格广场" center is-link to="/roomNumberList">
+                            <div slot="label">共<span class="mark">30</span>间住宅，闲置<span class="mark">30</span>间</div>
+                        </van-cell>
 						<template slot="right">
 						    <van-button square type="danger" text="删除" />
 						</template>
@@ -21,7 +23,9 @@
 	        	</li>
 	        	<li>
 	        		<van-swipe-cell>
-					  	<van-cell title="赛格广场" value="共2间住宅，闲置1间" is-link />
+					  	<van-cell title="赛格广场" center is-link to="/roomNumberList">
+                            <div slot="label">共<span class="mark">30</span>间住宅，闲置<span class="mark">30</span>间</div>                
+                        </van-cell>
 						<template slot="right">
 						    <van-button square type="danger" text="删除" />
 						</template>
@@ -29,7 +33,9 @@
 	        	</li>
 	        	<li>
 	        		<van-swipe-cell>
-					  	<van-cell title="赛格广场" value="共2间住宅，闲置1间" is-link />
+					  	<van-cell title="赛格广场" center is-link to="/roomNumberList">
+                            <div slot="label">共<span class="mark">30</span>间住宅，闲置<span class="mark">30</span>间</div>
+                        </van-cell>
 						<template slot="right">
 						    <van-button square type="danger" text="删除" />
 						</template>
@@ -116,6 +122,9 @@ export default {
         	ul{
         		height: calc(100vh - 141px);;
         		overflow: scroll;
+                .mark{
+                    color: #f00;
+                }
         	}
         }
     }

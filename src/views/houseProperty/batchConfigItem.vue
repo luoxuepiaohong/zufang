@@ -1,49 +1,40 @@
 <template>
-    <div class="add-room-number">
-        <van-nav-bar title="添加房号" left-arrow  @click-left="goPrevPage"></van-nav-bar>
+    <div class="batch-config-item">
+        <van-nav-bar title="房间配置" left-arrow  @click-left="goPrevPage">
+        	<span slot="right" class="nav-bar-right" @click="saveConfigItem">确定</span>
+        </van-nav-bar>
         
-        <!-- 房号相关信息 -->
-        <van-cell-group>
-            <van-field v-model="houseOption.house_name" label="房产名" readonly input-align="right" />
-            <van-field v-model="build_no" label="楼栋号(选填)" placeholder="如 A" input-align="right">
-                <span slot="button" class="input-tail">栋</span>
-            </van-field>
-            <van-field v-model="houseOption.house_no" placeholder="如 108" required label="房号" input-align="right" />
-            <router-link to="/housePhoto" class="photo-album">
-                <span class="photo-name">相册</span>
-                <div class="phone-thumbnail">
-                    <img src="">
-                    <span class="phone-total">0张</span>
-                </div>
-            </router-link>
-        </van-cell-group>
+        <van-cell title="配置" />
+        <section class="config-info">
+        	<ul class="config-info-list">
+        		<li class="config-info-item">
+        			<span class="info-item-label">户型</span>
+                	<input type="text" v-model="typeVal" placeholder="请选择" readonly @click="openPopup('type')">
+        		</li>
+        		<li class="config-info-item">
+        			<span class="info-item-label">面积(m<sup>2</sup>)</span>
+                	<input type="number" placeholder="请填写">
+        		</li>
+        		<li class="config-info-item">
+        			<span class="info-item-label">月租金</span>
+                	<input type="number" placeholder="请填写">
+        		</li>
+        		<li class="config-info-item">
+        			<span class="info-item-label">收租周期</span>
+                	<input type="text" v-model="periodVal" placeholder="请选择" readonly @click="openPopup('period')">
+        		</li>
+        	</ul>
+        </section>
+        <router-link to="/batchHousePhoto" class="photo-album">
+            <span class="photo-name">相册</span>
+            <div class="phone-thumbnail">
+                <img src="">
+                <span class="phone-total">0张</span>
+            </div>
+        </router-link>
 
-        <!-- 租房相关信息 -->
-        <ul class="renting-info">
-            <li class="renting-info-item">
-                <span>楼层</span>
-                <input type="text" v-model="levelVal" placeholder="请选择" readonly @click="openPopup('level')">
-            </li>
-            <li class="renting-info-item">
-                <span>户型</span>
-                <input type="text" v-model="typeVal" placeholder="请选择" readonly @click="openPopup('type')">
-            </li>
-            <li class="renting-info-item">
-                <span>面积(m<sup>2</sup>)</span>
-                <input type="number" placeholder="请填写">
-            </li>
-            <li class="renting-info-item">
-                <span>月租金</span>
-                <input type="number" placeholder="请填写">
-            </li>
-            <li class="renting-info-item">
-                <span>收租周期</span>
-                <input type="text" v-model="periodVal" placeholder="请选择" readonly @click="openPopup('period')">
-            </li>
-        </ul>
-        
         <!-- 房间配置 -->
-        <van-cell title="房间配置" is-link to="roomConfig">
+        <van-cell title="房间配置" is-link to="batchRoomConfig">
             <van-icon slot="right-icon" name="add" />
         </van-cell>
         <!-- 配置列表 -->
@@ -53,11 +44,11 @@
             </van-field>
             <van-button slot="right" square text="删除" type="danger" @click="delDisposeItem(key)" />
         </van-swipe-cell>
+        <van-cell value="房间配置可以是家私、水电存折、钥匙号等" class="tips" />
 
-        <!-- 楼层 -->
-        <van-popup v-model="levelShow" position="bottom">
-            <van-picker :columns="levelColumns" title="请选择楼层" show-toolbar @confirm="onConfirm" @cancel="levelShow = false" />
-        </van-popup>
+		<!-- 应用房间 -->
+        <van-cell title="应用房间" value="请选择" is-link to="applicationRoom"  />
+
         <!-- 户型 -->
         <van-popup v-model="typeShow" position="bottom">
             <van-picker :columns="typeColumns" title="请选择户型" show-toolbar @confirm="onConfirm" @cancel="typeShow = false" />
@@ -66,8 +57,7 @@
         <van-popup v-model="periodShow" position="bottom">
             <van-picker :columns="periodColumns" title="请选择收租周期" show-toolbar @confirm="onConfirm" @cancel="periodShow = false" />
         </van-popup>
-
-        <van-button :loading="saveStatus" type="info" loading-text="保存中..." :disabled="saveStatus" @click="saveRoomNumber" class="save-btn">保存</van-button>
+		
 
         <transition name="slide-right" mode="out-in">
             <router-view></router-view>
@@ -80,34 +70,10 @@ const floorNum = Array.from({length:99}, (v,k) => k+1);
 const tenNum = Array.from({length:10}, (v,k) => k);
 
 export default {
-    name: 'AddRoomNumber',
+    name: 'BatchConfigItem',
     data () {
         return {
-            houseOption: {
-                house_name: '白云山小区',
-                house_no: '',
-            },
-            build_no: '',
-
-            levelShow: false,
-            levelVal: '',
-            levelColumns:[
-                {
-                  values: ['电梯','楼梯'],
-                  className: 'column1'
-                },
-                {
-                  values: floorNum.map(item => '第' + item + '层'),
-                  className: 'column2',
-                  defaultIndex: 6
-                },
-                {
-                  values: floorNum.map(item => '共' + item + '层'),
-                  className: 'column3',
-                  defaultIndex: 6
-                }
-            ],
-
+  
             typeShow: false,
             typeVal: '',
             typeColumns:[
@@ -158,10 +124,7 @@ export default {
                     name: '洗衣机',
                     remarks: ''
                 }
-            ],
-
-            // 保存状态按钮
-            saveStatus: false,
+            ]
 
         }
     },
@@ -175,8 +138,7 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            // this.$router.push({path: '/addHouse'})
-            this.$router.back(-1);
+            this.$router.push({path: '/batchConfigList'})
         },
 
         // 打开上拉菜单
@@ -222,9 +184,9 @@ export default {
             }
         },
 
-        // 保存
-        saveRoomNumber(){
-            this.saveStatus = true;
+        // 保存配置
+        saveConfigItem(){
+
         }
     }
 }
@@ -232,7 +194,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
-    .add-room-number{
+    .batch-config-item{
     	background: #f5f5f5;
         position: fixed;
         width: 100vw;
@@ -240,7 +202,7 @@ export default {
         left: 0;
         height: 100vh;
         background: #f5f5f5;
-        z-index: 199;  
+        z-index: 399;  
         .van-nav-bar{
             background: #5788e4;
             .van-icon-arrow-left:before{
@@ -256,15 +218,70 @@ export default {
                 font-size: 16px;
             }
         }
-        .input-tail{
-            color: #323233;
+        
+        .config-info{
+        	padding-left: 16px;
+        	height: 88px;
+        	background: #fff;
+        	position: relative;
+        	&::after{
+        		position: absolute;
+			    box-sizing: border-box;
+			    content: ' ';
+			    pointer-events: none;
+			    right: 0;
+			    bottom: 0;
+			    left: 16px;
+			    border-bottom: 1px solid #ebedf0;
+			    transform: scaleY(.5);
+        	}
+        	.config-info-list{
+        		display: flex;
+        		flex-wrap: wrap;
+        		.config-info-item{
+					width: 50%;
+					height: 40px;
+					display: flex;
+					align-items: center;
+					font-size: 14px;
+					.info-item-label{
+						color: #999;
+						width: 60px;
+					}
+					input{
+	                    width: calc(100% - 76px);
+	                    border: 0;
+	                    height: 18px;
+	                    font-size: 14px;
+	                    color: #20a0ff;
+	                    &::-webkit-input-placeholder{
+	                        color: #ababab;
+
+	                    }
+	                }
+        		}	
+        	}
         }
+
         .photo-album{
             padding: 5px 16px;
             height: 55px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #fff;
+            position: relative;
+            &::after{
+        		position: absolute;
+			    box-sizing: border-box;
+			    content: ' ';
+			    pointer-events: none;
+			    right: 0;
+			    bottom: 0;
+			    left: 16px;
+			    border-bottom: 1px solid #ebedf0;
+			    transform: scaleY(.5);
+        	}
             .photo-name{
                 color: #323233;
                 font-size: 14px;
@@ -294,56 +311,16 @@ export default {
             }
         }
 
-        .renting-info{
-            margin: 8px 0;
-            overflow: hidden;
-            clear: both;
-            background: #fff;
-            .renting-info-item{
-                height: 40px;
-                padding: 15px 0;
-                width: calc(100%/3);
-                float: left;
-                display: flex;
-                flex-flow: column;
-                justify-content: space-between;
-                align-items: center;
-                position: relative;
-                &:after{
-                    height: 40%;
-                    width: 1px;
-                    background: #eee;
-                    content: "";
-                    position: absolute;
-                    top: 30%;
-                    right: 0;
-                }
-                &:nth-child(3n){
-                    &:after{
-                        width: 0;
-                    }
-                }
-                span{
-                    color: #323233;
-                    font-size: 14px;
-                }
-                input{
-                    text-align: center;
-                    width: 80%;
-                    font-size: 12px;
-                    border: 0;
-                    color: #323233;
-                    &::-webkit-input-placeholder{
-                        color: #ababab;
-                    }
-                }
-            }
-        }
-
         .van-icon-add{
             font-size: 22px;
             line-height: inherit;
             color: #5788e4;
+        }
+        .tips{
+        	.van-cell__value--alone{
+        		font-size: 12px;
+        		color: #999;
+        	}
         }
 
         .config-list{
@@ -361,6 +338,9 @@ export default {
             width: 120px;
             background: #5788e4;
         }
+
+
+        
         
     }
 </style>

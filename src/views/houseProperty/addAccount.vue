@@ -78,7 +78,8 @@ export default {
     methods: {
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/accountList'})
+            // this.$router.push({path: '/accountList'})
+            this.$router.back(-1);
         },
 
         photograph(){
