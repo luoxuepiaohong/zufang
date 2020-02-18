@@ -27,17 +27,24 @@
         },
         methods:{
             init() {
-                this.getMyLocation();
+
+                if(navigator.geolocation){         //浏览器定位
+                    navigator.geolocation.getCurrentPosition(this.showPosition);
+                }else{                             //腾讯api定位
+                    this.getMyLocation();
+                }
+                
+
             },
 
             //定位获得当前位置信息
             getMyLocation() {
                 var geolocation = new qq.maps.Geolocation("ZHUBZ-2ZP6X-4NT45-TQ4W4-XNZME-6KFDC", "租房-定位");
-                // geolocation.getIpLocation(this.showPosition, this.showErr);
-                geolocation.getLocation(this.showPosition, this.showErr);  //或者用getLocation精确度比较高
+                geolocation.getLocation(this.showPosition, this.showErr);
             },
             // 定位成功
             showPosition(position) {
+                console.log(position);
                 this.setMap(position.lat,position.lng);
             },
             // 定位失败
