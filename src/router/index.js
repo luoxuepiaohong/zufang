@@ -17,6 +17,8 @@ const CustomConfig = ()=>import("@/views/houseProperty/customConfig")
 const BatchAddRoom = ()=>import("@/views/houseProperty/batchAddRoom")
 const BatchConfigList = ()=>import("@/views/houseProperty/batchConfigList")
 const BatchConfigItem = ()=>import("@/views/houseProperty/batchConfigItem")
+const SelectHouse = () =>import("@/views/houseProperty/selectHouse")
+const SelectPosition = () =>import("@/views/houseProperty/selectPosition")
 // 房产模块(管理)
 const RoomNumberList = ()=>import("@/views/manageHouses/roomNumberList")
 const EditHouse = ()=>import("@/views/manageHouses/editHouse")
@@ -40,6 +42,16 @@ const router = new Router({
             name: 'AddHouse',
             component: AddHouse,
             children:[
+              {
+                path: '/selectHouse',
+                name: 'SelectHouse',
+                component: SelectHouse
+              },
+              {
+                path: '/selectPosition',
+                name: 'SelectPosition',
+                component: SelectPosition
+              },
               {
                 path: '/accountList',
                 name: 'AccountList',

@@ -7,8 +7,8 @@
         <!-- 添加房产需要填写的资料容器 -->
         <section class="add-house-container">
             <section>
-                <van-cell title="房产名" value="请选择" is-link />
-                <van-cell title="详细地址" value="请选择" is-link />
+                <van-cell title="房产名" value="请选择" is-link to="/selectHouse" />
+                <van-cell title="详细地址" value="请选择" is-link to="/selectPosition" />
                 <van-cell title="房产类型" :value="typeVal" is-link @click="openPopup('type')" />
                 <van-cell title="收款账户" value="请选择收款账户" is-link to="accountList" />
             </section>
