@@ -10,9 +10,12 @@ import router from './router'
 import Vant from 'vant';
 import 'vant/lib/index.css';
 
-
 // 引入图标库iconfont
 import '@/common/font/iconfont/iconfont.css'
+
+import Vconsole from 'vconsole'   		//移动端调试工具之一：vconsole
+const vConsole = new Vconsole()
+Vue.use(vConsole)
 
 // 引入mock.js
 require('./mock/mock.js')

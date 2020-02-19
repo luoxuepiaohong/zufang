@@ -29,8 +29,10 @@
             init() {
 
                 if(navigator.geolocation){         //浏览器定位
+                    console.log('浏览器定位');
                     navigator.geolocation.getCurrentPosition(this.showPosition);
                 }else{                             //腾讯api定位
+                    console.log('腾讯地图API定位');
                     this.getMyLocation();
                 }
                 
@@ -44,7 +46,7 @@
             },
             // 定位成功
             showPosition(position) {
-                console.log(position);
+                console.log('position:',position);
                 this.setMap(position.lat,position.lng);
             },
             // 定位失败
