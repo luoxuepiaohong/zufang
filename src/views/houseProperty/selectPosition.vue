@@ -7,7 +7,7 @@
 
         <section class="select-position-container">
             <div id="container"></div>
-            <div class="position-box">番禺区东环街道清河横街27号</div>
+            <div class="position-box">{{address}}</div>
             <div class="confirm-btn">确定</div>
         </section>
     </div>
@@ -19,7 +19,7 @@
     	name: 'SelectPosition',
     	data () {
 	        return {
-	            
+	            address: '',
 	        }
 	    },
         mounted() {
@@ -27,16 +27,7 @@
         },
         methods:{
             init() {
-
-                if(navigator.geolocation){         //浏览器定位
-                    console.log('浏览器定位');
-                    navigator.geolocation.getCurrentPosition(this.showPosition);
-                }else{                             //腾讯api定位
-                    console.log('腾讯地图API定位');
-                    this.getMyLocation();
-                }
-                
-
+                this.getMyLocation();
             },
 
             //定位获得当前位置信息
@@ -65,17 +56,38 @@
                 }
                 // //获取dom元素添加地图信息
                 var map = new qq.maps.Map(document.getElementById("container"), myOptions);
-                //给定位的位置添加图片标注
+            
+                //给定位的位置添加圆形标注
+                var circle=new qq.maps.Circle({
+                    map:map,
+                    center:myLatlng,
+                    radius:4,
+                    fillColor:"#5788e4",
+                    strokeWeight: 2,
+                    strokeColor: new qq.maps.Color(255,255,255,0.5),
+                });
+
+                // 设置地图中心的标注
                 var marker = new qq.maps.Marker({
                     position: myLatlng,
-                    map: map
-                });
-                //给定位的位置添加文本标注
-                var marker = new qq.maps.Label({
-                    position: myLatlng,
                     map: map,
-                    content:'这是我当前的位置，偏差有点大，哈哈'
+                    animation: qq.maps.MarkerAnimation.DROP
                 });
+
+                qq.maps.event.addListener(map, 'center_changed', function() {
+                    // 重新设置标注位置
+                    marker.setPosition(map.getCenter());
+
+                    // 获取标注所在的经纬度地址
+                    let _this = this;
+                    let geocoder = new qq.maps.Geocoder({
+                        complete: function(result){
+                            _this.address = result.detail.address
+                        }
+                    });
+                    geocoder.getAddress(map.getCenter());
+                    
+                }.bind(this));
             },
 
 
@@ -133,6 +145,7 @@
                 border-radius: 3px;
                 background: #fff;
                 padding-left: 10px;
+                box-sizing: border-box;
                 box-shadow: 0 0px 5px #ddd;
                 font-size: 14px;
                 color: #666;
