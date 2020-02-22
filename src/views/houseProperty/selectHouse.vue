@@ -52,21 +52,6 @@
                 this.getMyLocation();
             },
 
-            // 获取城市经纬度
-			getLal(address) {
-				var geocoder = new qq.maps.Geocoder();
-				//对指定地址进行解析
-				geocoder.getLocation(address);
-				//设置服务请求成功的回调函数
-				geocoder.setComplete((res) => {
-		            console.log(address + '成功回调数据',res);
-				});
-				//若服务请求失败，则运行以下函数
-				geocoder.setError((err) => {
-					console.log(address + '地址输入错误',err)
-				})
-			},
-
             //定位获得当前位置信息
             getMyLocation() {
                 var geolocation = new qq.maps.Geolocation("ZHUBZ-2ZP6X-4NT45-TQ4W4-XNZME-6KFDC", "租房-定位");
