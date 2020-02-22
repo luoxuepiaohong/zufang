@@ -16,12 +16,12 @@
 <script>
     import areaInfo from '@/common/js/area'
     export default{
-        name: 'SelectPosition',
-        data () {
-            return {
-                address: '',
-            }
-        },
+    	name: 'SelectPosition',
+    	data () {
+	        return {
+	            address: '',
+	        }
+	    },
         mounted() {
             this.init();
         },
@@ -71,9 +71,11 @@
                     map: map,
                     animation: qq.maps.MarkerAnimation.DROP
                 });
+
                 qq.maps.event.addListener(map, 'center_changed', function() {
                     // 重新设置标注位置
                     marker.setPosition(map.getCenter());
+
                     // 获取标注所在的经纬度地址
                     let _this = this;
                     let geocoder = new qq.maps.Geocoder({
