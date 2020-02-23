@@ -100,6 +100,7 @@ export default {
             this.$post(url, params).then((res) => {
                 //返回数据的格式
                 if(res.code == 1){
+                    if(res.data){ this.accountInfo.id = res.data; }
                     this.$emit('listenSaveAccount',this.accountInfo);
                 	this.goPrevPage();
                 }

@@ -6,18 +6,19 @@
     		<van-search v-model="searchVal" background="#5788e4" placeholder="请输入小区或公寓名" @search="getApartmentList" />
         	<div class="header-right" @click="onCancel">取消</div>
     	</header>
+        
+        <section class="select-house-empty" v-if="houseList.length == 0 && searchVal != ''">
+            <span>找不到房产?</span>
+            <div class="add-btn" @click="customAddHouse">直接添加</div>
+        </section>
 
-    	<section class="select-house-container" v-if="houseList.length > 0">
-    		<div class="house-item" v-for="(item, key) in houseList" :key="key" @click="onConfirmHouse">
+    	<section class="select-house-container" v-else>
+    		<div class="house-item" v-for="(item, key) in houseList" :key="key" @click="onConfirmHouse(item)">
     			<span class="house-name">{{item.title}}</span>
     			<span class="house-address">{{item.address}}</span>
     		</div>
     	</section>
 
-    	<section class="select-house-empty" v-else>
-    		<span>找不到房产?</span>
-    		<div class="add-btn">直接添加</div>
-    	</section>
 		
 		<!-- 省市区级联选择器弹出层 -->
 		<van-popup v-model="areaShow" position="bottom">
@@ -44,13 +45,17 @@
                 houseList: []
 	        }
 	    },
-        mounted() {
-            this.init();
+
+        created(){
+            if(this.$route.query && Object.keys(this.$route.query).length > 0){
+                this.city = this.$route.query.city;
+                this.cityCode = this.$route.query.cityCode;
+                this.getApartmentList();
+            }else{
+                this.getMyLocation();
+            }
         },
         methods:{
-            init() {
-                this.getMyLocation();
-            },
 
             //定位获得当前位置信息
             getMyLocation() {
@@ -61,9 +66,8 @@
 
             // 定位成功
             showPosition(position) {
-            	console.log(position);
-                // this.latitude = position.lat;
-                // this.longitude = position.lng;
+            	// console.log(position);
+
                 this.city = position.city;
                 this.cityCode = String(position.adcode);
 
@@ -71,7 +75,6 @@
             },
             // 定位失败
             showErr() {
-                console.log("定位失败");
                 this.getMyLocation();  //定位失败再请求定位，测试使用
             },
             // 获取小区（公寓）列表
@@ -89,9 +92,14 @@
             },
 
             // 选择小区（公寓）
-            onConfirmHouse(){
-            	console.log('选择了');
+            onConfirmHouse(item){
+                this.$emit('getHouseName', item);
             	this.onCancel();
+            },
+            // 直接添加
+            customAddHouse(){
+                this.$emit('getHouseName', { title: this.searchVal });
+                this.onCancel();
             },
 
             // 取消搜索（返回上一页）
@@ -110,6 +118,13 @@
             },
             onAreaCancel(){
             	this.areaShow = false;
+            }
+        },
+        watch:{
+            searchVal: function(newVal, oldVal){
+                if(newVal == ''){
+                    this.getApartmentList();
+                }
             }
         }
     }

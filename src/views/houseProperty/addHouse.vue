@@ -7,10 +7,10 @@
         <!-- 添加房产需要填写的资料容器 -->
         <section class="add-house-container">
             <section>
-                <van-cell title="房产名" value="请选择" is-link to="/selectHouse" />
-                <van-cell title="详细地址" value="请选择" is-link to="/selectPosition" />
+                <van-cell title="房产名" center :value="houseInfo.house_name" is-link @click="goSelectHouse" />
+                <van-cell title="详细地址" center :value="houseInfo.address" is-link @click="goSelectPosition" />
                 <van-cell title="房产类型" :value="typeVal" is-link @click="openPopup('type')" />
-                <van-cell title="收款账户" value="请选择收款账户" is-link to="accountList" />
+                <van-cell title="收款账户" center value="请选择收款账户" is-link to="accountList" />
             </section>
 
             <p class="tips">收款账户将附加在账单中显示</p>
@@ -59,7 +59,7 @@
 
 		
         <transition name="slide-right" mode="out-in">
-            <router-view v-on:selectAccount="selectAccount"></router-view>
+            <router-view v-on:getHouseName="getHouseName" v-on:selectAccount="selectAccount"></router-view>
         </transition>
     </div>
 </template>
@@ -75,9 +75,6 @@ export default {
     name: 'AddHouse',
     data () {
         return {
-            page: 1,
-            pageSize: 10,
-
             checked: false,
             value: '',
             result: [],
@@ -108,6 +105,20 @@ export default {
                 }
             ],
             floorColumns: floorNum,
+
+
+            // 房产信息
+            houseInfo: {
+                house_name: '请选择',
+                address: '请选择',
+            },
+            // 房产相关信息（辅助信息）
+            houseRelate: {
+                lat: 0,
+                lng: 0,
+                city: '',
+                adcode: 0,
+            }
 
         }
     },
@@ -158,6 +169,52 @@ export default {
             }
             
             
+        },
+
+        // 获取房产名
+        getHouseName(data){
+            this.houseInfo.house_name = data.title;
+
+            if(data.hasOwnProperty('address')){
+                this.houseInfo.address = data.address;
+                this.houseRelate.lat = data.location.lat;
+                this.houseRelate.lng = data.location.lng;
+                this.houseRelate.city = data.city;
+                this.houseRelate.adcode = data.adcode;
+            }
+        },
+
+
+        /* 去往子页面 */
+        // 去往选择房产页面
+        goSelectHouse(){
+            if(this.houseRelate.lat == 0){
+                this.$router.push({path: '/selectHouse'})
+            }else{
+                const param = {
+                    lat: this.houseRelate.lat,
+                    lng: this.houseRelate.lng,
+                    city: this.houseRelate.city,
+                    adcode: this.houseRelate.adcode
+                }
+                this.$router.push({path: '/selectHouse', query: param })
+            }
+        },
+
+        // 去往选择详细地址页面
+        goSelectPosition(){
+            if(this.houseRelate.lat == 0){
+                this.$router.push({path: '/selectPosition'})
+            }else{
+                const param = {
+                    lat: this.houseRelate.lat,
+                    lng: this.houseRelate.lng,
+                    city: this.houseRelate.city,
+                    adcode: String(this.houseRelate.adcode),
+                    address: this.houseInfo.address
+                }
+                this.$router.push({path: '/selectPosition', query: param })
+            }
         }
     }
 }

@@ -168,7 +168,9 @@ export default {
         saveSelect(){
             if(this.radio == ''){ return this.$toast.fail('请选择收款账户'); }
 
-            this.$emit('selectAccount', this.radio);
+            let accountObj = this.accountList.filter(item => item.id == this.radio)[0];
+
+            this.$emit('selectAccount', accountObj);
             this.$router.push({path: '/addHouse'})
         }
     }
