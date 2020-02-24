@@ -16,7 +16,7 @@
 
     	<section class="search-position-empty" v-else>
     		<span>找不到详细地址?</span>
-    		<div class="add-btn">直接添加</div>
+    		<div class="add-btn" @click="customPosition">直接添加</div>
     	</section>
 		
 		<!-- 省市区级联选择器弹出层 -->
@@ -112,6 +112,12 @@
             },
             onAreaCancel(){
             	this.areaShow = false;
+            },
+
+            // 直接添加
+            customPosition(){
+                this.$emit('getCustomPosition', { address: this.searchVal });
+                this.onCancel();
             }
         }
     }

@@ -17,6 +17,7 @@
                                 <span slot="title" v-if="item.type == 1">{{item.bank}}<i class="iconfont icon-yinlian"></i></span>
                                 <span slot="title" v-if="item.type == 2">微信<i class="iconfont icon-weixin"></i></span>
                                 <span slot="title" v-if="item.type == 3">支付宝<i class="iconfont icon-umidd17"></i></span>
+                                <span slot="title" v-if="item.type == 4">其他<i class="iconfont icon-umidd17"></i></span>
                                 <van-radio slot="right-icon" :name="item.id" />
                                 <span slot="label" v-if="item.type == 1">{{item.card_no}}</span>
                                 <span slot="label" v-if="item.type == 2">{{item.weixin}}</span>
@@ -80,7 +81,7 @@ export default {
     methods: {
         // 初始化
         init(){
-            this.getAccountList();
+            // this.getAccountList();
         },
 
         // 获取账户列表
@@ -142,7 +143,6 @@ export default {
         // 滚动加载
         onLoad() {
             // 异步更新数据
-            this.skip++;
             let url = "Gettype/index";
             let params = { 
                 uid: 100118,
@@ -151,6 +151,7 @@ export default {
             };
 
             this.$post(url, params).then((res) => {
+                this.skip++;
                 //返回数据的格式
                 this.accountList = [...this.accountList, ...res.data];
                 // 去重

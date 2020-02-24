@@ -11,7 +11,7 @@
         </section>
 
         <transition name="slide-right" mode="out-in">
-            <router-view v-on:confirmStreet="confirmStreet"></router-view>
+            <router-view v-on:confirmStreet="confirmStreet" v-on:getCustomPosition="getCustomPosition"></router-view>
         </transition>
     </div>
 </template>
@@ -154,7 +154,14 @@
 
             // 确定位置
             confirmPosition(){
+                if(this.locationInfo.address == ''){
+                    return this.$toast.fail('请选择地址');
+                }
                 this.$emit('confirmStreet',this.locationInfo);
+                this.goPrevPage();
+            },
+            getCustomPosition(data){
+                this.$emit('customStreet',data);
                 this.goPrevPage();
             }
         }

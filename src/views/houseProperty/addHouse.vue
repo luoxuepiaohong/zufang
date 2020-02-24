@@ -10,7 +10,10 @@
                 <van-cell title="房产名" center :value="houseInfo.house_name" is-link @click="goSelectHouse" />
                 <van-cell title="详细地址" center :value="houseInfo.address" is-link @click="goSelectPosition" />
                 <van-cell title="房产类型" :value="typeVal" is-link @click="openPopup('type')" />
-                <van-cell title="收款账户" center value="请选择收款账户" is-link to="accountList" />
+                <van-cell title="收款账户" center is-link to="accountList">
+                    <div>{{houseRelate.account_type}}</div>
+                    <div>{{houseRelate.account_name}}</div>
+                </van-cell>
             </section>
 
             <p class="tips">收款账户将附加在账单中显示</p>
@@ -59,7 +62,7 @@
 
 		
         <transition name="slide-right" mode="out-in">
-            <router-view v-on:getHouseName="getHouseName" v-on:selectAccount="selectAccount"></router-view>
+            <router-view v-on:getHouseName="getHouseName" v-on:selectAccount="selectAccount" v-on:confirmStreet="confirmStreet" v-on:customStreet="customStreet"></router-view>
         </transition>
     </div>
 </template>
@@ -111,6 +114,7 @@ export default {
             houseInfo: {
                 house_name: '请选择',
                 address: '请选择',
+                account_id: '',
             },
             // 房产相关信息（辅助信息）
             houseRelate: {
@@ -118,6 +122,9 @@ export default {
                 lng: 0,
                 city: '',
                 adcode: 0,
+
+                account_type: '请选择收款账户',
+                account_name: '',
             }
 
         }
@@ -152,25 +159,20 @@ export default {
             this[this.popupType + 'Show'] = false;
         },
 
-        // 获取选择的账户信息
-        selectAccount(data){
-            console.log('获取选择的账户信息:',data);
-        },
-
+    
         // 下一步
         nextStep(){
             // 判断是否填写房产名和详细地址
-            // if(){ return this.$toast.fail('房产名不能为空'); }
-            // if(){ return this.$toast.fail('详细地址不能为空'); }
+            if(this.houseInfo.house_name == ''){ return this.$toast.fail('房产名不能为空'); }
+            if(this.houseInfo.address == ''){ return this.$toast.fail('详细地址不能为空'); }
             if(this.checked){
                 this.$router.push({path: '/batchAddRoom'})
             }else{
                 this.$router.push({path: '/addRoomNumber'})
-            }
-            
-            
+            } 
         },
 
+        /*获取子页面信息*/
         // 获取房产名
         getHouseName(data){
             this.houseInfo.house_name = data.title;
@@ -181,6 +183,44 @@ export default {
                 this.houseRelate.lng = data.location.lng;
                 this.houseRelate.city = data.city;
                 this.houseRelate.adcode = data.adcode;
+            }
+        },
+        // 获得街道名
+        confirmStreet(data){
+            this.houseInfo.address = data.address;
+            this.houseRelate.lat = data.lat;
+            this.houseRelate.lng = data.lng;
+            this.houseRelate.city = data.city;
+            this.houseRelate.adcode = data.adcode;
+        },
+        // 获取自定义街道名
+        customStreet(data){
+            this.houseInfo.address = data.address;
+            this.houseRelate.lat = 0;
+            this.houseRelate.lng = 0;
+        },
+        // 获取选择的账户信息
+        selectAccount(data){
+            console.log('获取选择的账户信息:',data);
+            this.houseInfo.account_id = data.id;
+
+            switch(data.type){
+                case 1:
+                    this.houseRelate.account_type = '银行卡';
+                    this.houseRelate.account_name = data.card_no;
+                    break;
+                case 2:
+                    this.houseRelate.account_type = '微信';
+                    this.houseRelate.account_name = data.weixin;
+                    break;
+                case 3:
+                    this.houseRelate.account_type = '支付宝';
+                    this.houseRelate.account_name = data.alipay;
+                    break;
+                case 4:
+                    this.houseRelate.account_type = '其他';
+                    this.houseRelate.account_name = '';
+                    break;
             }
         },
 
