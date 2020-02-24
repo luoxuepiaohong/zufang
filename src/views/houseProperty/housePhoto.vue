@@ -14,10 +14,7 @@ export default {
     name: 'HousePhoto',
     data () {
         return {
-            photoList: [
-                { url: 'https://img.yzcdn.cn/vant/leaf.jpg' },
-                { url: 'https://cloud-image', isImage: true }
-            ]
+            photoList: []
         }
     },
     mounted() {
@@ -36,7 +33,40 @@ export default {
 
         // 存储sessionstorage
         afterRead(file){
-            sessionStorage.setItem('photoList',JSON.stringify(this.photoList));
+            let url = "upload/imgUpload";
+            let params = new FormData();
+
+            if(file instanceof Array){
+                for(let i in file){
+                    file[i].status = 'uploading';
+                    file[i].message = '上传中...';
+                    params.append('uid', 100118);  
+                    params.append('file', file[i].file);
+
+                    this.$post(url, params).then((res) => {
+                        console.log("res:",res,i);
+                        file[i].status = 'done';
+                    });
+                }
+            }else{
+                file.status = 'uploading';
+                file.message = '上传中...';
+
+                
+                params.append('uid', 100118);  
+                params.append('file', file.file);
+
+                this.$post(url, params).then((res) => {
+                    console.log(res,this.photoList);
+                    file.status = 'done';
+                });
+            }
+            
+
+            // setTimeout(() => {
+            //     file.status = 'done';
+            // }, 1000);
+            // sessionStorage.setItem('photoList',JSON.stringify(this.photoList));
         },
 
         // 删除图片

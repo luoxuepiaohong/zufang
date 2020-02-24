@@ -21,11 +21,16 @@ axios.interceptors.request.use(
         };
          // 拼接URL
         config.url = beforeUrl + config.url;
-        // 加密且转为formData格式
+        // 把data转换为FormData格式且加密
         config.transformRequest = [function (data) {
-            let req = new FormData();
-            req.append('data', base64.base64_encode(test.authcode(encodeURI(JSON.stringify(config.data)), 'ENCODE', key)));
-            return req;
+            // 已经为FormData格式则不用加密
+            if(data instanceof FormData){
+                return data;
+            }else{                  
+                let req = new FormData();
+                req.append('data', base64.base64_encode(test.authcode(encodeURI(JSON.stringify(config.data)), 'ENCODE', key)));
+                return req;
+            }
         }]
         return config;
     },

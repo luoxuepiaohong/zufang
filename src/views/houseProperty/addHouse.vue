@@ -163,8 +163,8 @@ export default {
         // 下一步
         nextStep(){
             // 判断是否填写房产名和详细地址
-            if(this.houseInfo.house_name == ''){ return this.$toast.fail('房产名不能为空'); }
-            if(this.houseInfo.address == ''){ return this.$toast.fail('详细地址不能为空'); }
+            if(this.houseInfo.house_name == '请选择'){ return this.$toast.fail('房产名不能为空'); }
+            if(this.houseInfo.address == '请选择'){ return this.$toast.fail('详细地址不能为空'); }
             if(this.checked){
                 this.$router.push({path: '/batchAddRoom'})
             }else{
