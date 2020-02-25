@@ -9,14 +9,14 @@
         	<van-checkbox-group v-model="result">
         		<!-- 默认配置 -->
 				<van-cell-group title="默认配置">
-				    <van-cell v-for="(item, index) in list" clickable :key="item" :title="item" @click="toggle(index)">
+				    <van-cell v-for="(item, index) in list" clickable :key="item" :title="item" @click="toggle(index, 'checkboxes')">
 				      	<van-checkbox :name="item" ref="checkboxes" slot="right-icon"/>
 				    </van-cell>
 				</van-cell-group>
 				<!-- 自定义配置 -->
-				<van-cell-group title="自定义配置">
-				    <van-cell v-for="(item, index) in list2" clickable :key="item" :title="item" @click="toggle2(index)">
-				      	<van-checkbox :name="item" ref="checkboxes2" slot="right-icon"/>
+				<van-cell-group title="自定义配置" v-if="list2.length > 0">
+				    <van-cell v-for="(item, index) in list2" clickable :key="index" :title="item.name" @click="toggle(index, 'checkboxes2')">
+				      	<van-checkbox :name="item.name" ref="checkboxes2" slot="right-icon"/>
 				    </van-cell>
 				</van-cell-group>
 			</van-checkbox-group>
@@ -25,7 +25,7 @@
 			<div class="list-btn">
 				<van-button icon="add" plain @click="openDialog">添加自定义配置</van-button>
                 <!-- 判断当前配置页是批量配置还是单房配置 -->
-				<van-button icon="setting" type="primary" color="linear-gradient(to right, #4bb0ff, #6149f6)" :to="{path: this.$router.history.current.name == 'RoomConfig' ? '/customConfig' : 'batchCustomConfig'}">管理自定义配置</van-button>
+				<van-button icon="setting" type="primary" color="linear-gradient(to right, #4bb0ff, #6149f6)" :to="{path: this.$router.history.current.name == 'RoomConfig' ? '/customConfig' : 'batchCustomConfig'}" v-if="list2.length > 0">管理自定义配置</van-button>
 			</div>
         </section>
 
@@ -35,7 +35,7 @@
 		</van-dialog>
 
 		<transition name="slide-right" mode="out-in">
-            <router-view></router-view>
+            <router-view v-on:refreshDisposeList="refreshDisposeList"></router-view>
         </transition>
     </div>
 </template>
@@ -48,7 +48,7 @@ export default {
         return {
             result: [],
             list: ['空调', '冰箱', '洗衣机', '热水器', '油烟机', '沙发', '椅子', '床', '衣柜', '梳妆台'],
-            list2: ['测试'],
+            list2: [],
 
             dialogShow: false,
             setVal: '',
@@ -58,11 +58,24 @@ export default {
     },
     mounted() {
         this.init();
-        console.log(this.$router,this.$router.history.current);
     },
     methods: {
         // 初始化
         init(){
+            this.getTags();
+        },
+
+        // 获取房间配置列表
+        getTags(){
+            let url = "house/getTags";
+            let params = {
+                uid: 100118,
+                name: this.setVal
+            }
+
+            this.$post(url, params).then((res) => {
+                this.list2 = res.data;
+            });
         },
 
         // 返回上一页
@@ -71,21 +84,27 @@ export default {
             this.$router.back(-1);
         },  
 
-        toggle(index) {
-      		this.$refs.checkboxes[index].toggle();
-    	},
-    	toggle2(index) {
-      		this.$refs.checkboxes2[index].toggle();
+        toggle(index, resName) {
+      		this.$refs[resName][index].toggle();
     	},
 
     	openDialog(){
     		this.setVal = '';
     		this.dialogShow = true;
     	},
+
+
     	beforeClose(action, done){
     		if (action === 'confirm') {
-    			/*这里写与后端通讯代码（保存配置）*/
-    			setTimeout(done, 3000);
+                let url = "house/addTags";
+                let params = {
+                    uid: 100118,
+                    name: this.setVal
+                }
+                this.$post(url, params).then((res) => {
+                    this.getTags();
+                    done();
+                });
   			} else {
     			done();
   			}
@@ -93,7 +112,15 @@ export default {
 
         // 保存选择
         saveSelect(){
+            this.$emit('getDisposeList', this.result);
             this.goPrevPage();
+        },
+
+
+        // 刷新自定义配置列表
+        refreshDisposeList(){
+            this.result = [];
+            this.getTags();
         }
     }
 }

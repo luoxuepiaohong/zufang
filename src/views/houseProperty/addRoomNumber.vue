@@ -4,15 +4,16 @@
         
         <!-- 房号相关信息 -->
         <van-cell-group>
-            <van-field v-model="houseOption.house_name" label="房产名" readonly input-align="right" />
-            <van-field v-model="build_no" label="楼栋号(选填)" placeholder="如 A" input-align="right">
+            <van-field v-model="houseOption.house.house_name" label="房产名" readonly input-align="right" />
+            <van-field v-model="houseOption.room.house_no" label="楼栋号(选填)" placeholder="如 A" input-align="right">
                 <span slot="button" class="input-tail">栋</span>
             </van-field>
-            <van-field v-model="houseOption.house_no" placeholder="如 108" required label="房号" input-align="right" />
-            <router-link to="/housePhoto" class="photo-album">
+            <van-field v-model="houseOption.room.room_no" placeholder="如 108" required label="房号" input-align="right" />
+            <router-link :to="{path: '/housePhoto', query: {imgList: houseOption.room.img}}" class="photo-album">
                 <span class="photo-name">相册</span>
                 <div class="phone-thumbnail">
-                    <img src="">
+                    <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1582643520538&di=caec96aa432345a535684ddffd014185&imgtype=0&src=http%3A%2F%2Ftrademark-pics-search.oss-cn-shanghai.aliyuncs.com%2Fsmall%2Ft4518608796238848.jpg" v-if="houseOption.room.img.length == 0">
+                    <img :src="houseOption.room.img[0].url" v-else>
                     <span class="phone-total">0张</span>
                 </div>
             </router-link>
@@ -22,23 +23,23 @@
         <ul class="renting-info">
             <li class="renting-info-item">
                 <span>楼层</span>
-                <input type="text" v-model="levelVal" placeholder="请选择" readonly @click="openPopup('level')">
+                <input type="text" v-model="othersInfo.levelVal" placeholder="请选择" readonly @click="openPopup('level')">
             </li>
             <li class="renting-info-item">
                 <span>户型</span>
-                <input type="text" v-model="typeVal" placeholder="请选择" readonly @click="openPopup('type')">
+                <input type="text" v-model="othersInfo.typeVal" placeholder="请选择" readonly @click="openPopup('type')">
             </li>
             <li class="renting-info-item">
                 <span>面积(m<sup>2</sup>)</span>
-                <input type="number" placeholder="请填写">
+                <input type="number" v-model="houseOption.room.room_data.area" placeholder="请填写">
             </li>
             <li class="renting-info-item">
                 <span>月租金</span>
-                <input type="number" placeholder="请填写">
+                <input type="number" v-model="houseOption.room.room_data.money" placeholder="请填写">
             </li>
             <li class="renting-info-item">
                 <span>收租周期</span>
-                <input type="text" v-model="periodVal" placeholder="请选择" readonly @click="openPopup('period')">
+                <input type="text" v-model="othersInfo.periodVal" placeholder="请选择" readonly @click="openPopup('period')">
             </li>
         </ul>
         
@@ -47,8 +48,8 @@
             <van-icon slot="right-icon" name="add" />
         </van-cell>
         <!-- 配置列表 -->
-        <van-swipe-cell v-for="(item, key) in dispose" :key="key" class="config-list" :ref="'ceshi' + key" :before-close="beforeClose">
-            <van-field v-model="periodVal" :label="item.name" placeholder="品牌/新旧程度">
+        <van-swipe-cell v-for="(item, key) in houseOption.room.room_data.dispose" :key="key" class="config-list" :ref="'dispose' + key" :before-close="beforeClose">
+            <van-field v-model="item.remarks" :label="item.name" placeholder="品牌/新旧程度">
                 <i slot="left-icon" class="iconfont icon-weixin" @click="openSidebar(key)"></i>
             </van-field>
             <van-button slot="right" square text="删除" type="danger" @click="delDisposeItem(key)" />
@@ -70,7 +71,7 @@
         <van-button :loading="saveStatus" type="info" loading-text="保存中..." :disabled="saveStatus" @click="saveRoomNumber" class="save-btn">保存</van-button>
 
         <transition name="slide-right" mode="out-in">
-            <router-view></router-view>
+            <router-view v-on:getPhotoList="getPhotoList" v-on:getDisposeList="getDisposeList"></router-view>
         </transition>
     </div>
 </template>
@@ -84,13 +85,42 @@ export default {
     data () {
         return {
             houseOption: {
-                house_name: '白云山小区',
-                house_no: '',
-            },
-            build_no: '',
+                house: {
+                    house_name: '',
+                },
+                room: {
+                    room_data: {
+                        room_type: "",
+                        area: "",
+                        money: "",
+                        rents_cycle: "",
+                        dispose: [],
+                    },
+                    img: [],                  //图片列表
 
+                    room_no: '',
+                    total_floor: '',
+                    nowFloor: '',
+                    allRoom_status: 0,
+                    house_no: "",
+                    room_stair: ""
+                },
+            },
+
+            othersInfo: {
+                levelVal: '',
+                typeVal: '',
+                periodVal: '',
+
+                popupType: '',
+            },
+            
+            // 上拉菜单状态
             levelShow: false,
-            levelVal: '',
+            typeShow: false,
+            periodShow: false,
+            
+            // 上拉菜单列表
             levelColumns:[
                 {
                   values: ['电梯','楼梯'],
@@ -107,9 +137,6 @@ export default {
                   defaultIndex: 6
                 }
             ],
-
-            typeShow: false,
-            typeVal: '',
             typeColumns:[
                 {
                   values: tenNum.map(item => (item + 1) + '房'),
@@ -127,9 +154,6 @@ export default {
                   defaultIndex: 0
                 }
             ],
-
-            periodShow: false,
-            periodVal: '',
             periodColumns:[
                 {
                   values: ['付1','付2','付3','付4','付5','付6','付12'],
@@ -143,36 +167,22 @@ export default {
                 },
             ],
 
-            popupType: '',
-
-            dispose:[
-                {
-                    name: '冰箱',
-                    remarks: ''
-                },
-                {
-                    name: '空调',
-                    remarks: ''
-                },
-                {
-                    name: '洗衣机',
-                    remarks: ''
-                }
-            ],
-
+            
             // 保存状态按钮
             saveStatus: false,
 
         }
     },
-    mounted() {
-        this.init();
+
+    created(){
+        if(this.$route.query && Object.keys(this.$route.query).length > 0){
+            this.houseOption.house.house_name = this.$route.query.house_name;
+            this.houseOption.house.address = this.$route.query.address;
+            this.houseOption.house.house_type = this.$route.query.typeVal;
+            this.houseOption.house.account_id = this.$route.query.account_id;
+        }
     },
     methods: {
-        // 初始化
-        init(){
-        },
-
         // 返回上一页
         goPrevPage(){
             // this.$router.push({path: '/addHouse'})
@@ -181,25 +191,31 @@ export default {
 
         // 打开上拉菜单
         openPopup(type){
-            this.popupType = type;
-            this[this.popupType + 'Show'] = true;
+            this.othersInfo.popupType = type;
+            this[this.othersInfo.popupType + 'Show'] = true;
         },
         // 上拉菜单确定选择
         onConfirm(value, index) {
-            if(this.popupType == 'level' && index[1] > index[2]){return this.$toast('总层数不能小于所在楼层');}
+            if(this.othersInfo.popupType == 'level'){
+                if(index[1] > index[2]){ return this.$toast('总层数不能小于所在楼层'); }
 
-            this[this.popupType + 'Val'] = value.toString();
-            this[this.popupType + 'Show'] = false;
+                this.houseOption.room.room_stair = this.levelColumns[0].values[index[0]];
+                this.houseOption.room.nowFloor = index[1] + 1;
+                this.houseOption.room.total_floor = index[2] + 1;
+            }
+
+            this.othersInfo[this.othersInfo.popupType + 'Val'] = value.toString();
+            this[this.othersInfo.popupType + 'Show'] = false;
         },
 
 
         // 打开单元格侧边栏
         openSidebar(key){
-            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("ceshi") == 0)
+            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("dispose") == 0)
 
             // 循环判断，打开某行侧边栏时，关闭其他的侧边栏
             for(let i in refArr){
-                if(refArr[i] == 'ceshi' + key){
+                if(refArr[i] == 'dispose' + key){
                     this.$refs[refArr[i]][0].open('right');
                 }else{
                     this.$refs[refArr[i]][0].close();
@@ -212,9 +228,9 @@ export default {
 
         // 删除一项房间配置
         delDisposeItem(key){
-            this.dispose.splice(key,1); 
+            this.houseOption.room.room_data.dispose.splice(key,1); 
 
-            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("ceshi") == 0)
+            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("dispose") == 0)
             for(let i in refArr){
                 if(this.$refs[refArr[i]].length > 0){
                     this.$refs[refArr[i]][0].close();
@@ -224,8 +240,37 @@ export default {
 
         // 保存
         saveRoomNumber(){
-            this.saveStatus = true;
+            
+            let url = "house/addHouse";
+            let params = Object.assign({
+                uid: 100118
+            }, this.houseOption);
+
+            params.house.uid = 100118;
+            params.room.room_data.room_type = this.othersInfo.typeVal;
+            params.room.room_data.rents_cycle = this.othersInfo.periodVal;
+            console.log(params);
+            this.$post(url, params).then((res) => {
+                console.log(res);
+            });
+
+            this.saveStatus = false;
+        },
+
+        /*获取子页面数据*/
+        getPhotoList(data){
+            this.houseOption.room.img = data;
+        },
+        getDisposeList(data){
+            this.houseOption.room.room_data.dispose = [];
+            if(data.length > 0){ 
+                for(let i in data){
+                    this.houseOption.room.room_data.dispose.push({ name: data[i], remarks: '' })
+                }
+            }
         }
+
+        /*去往子页面*/
     }
 }
 </script>

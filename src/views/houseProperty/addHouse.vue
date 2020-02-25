@@ -9,7 +9,7 @@
             <section>
                 <van-cell title="房产名" center :value="houseInfo.house_name" is-link @click="goSelectHouse" />
                 <van-cell title="详细地址" center :value="houseInfo.address" is-link @click="goSelectPosition" />
-                <van-cell title="房产类型" :value="typeVal" is-link @click="openPopup('type')" />
+                <van-cell title="房产类型" :value="houseInfo.typeVal" is-link @click="openPopup('type')" />
                 <van-cell title="收款账户" center is-link to="accountList">
                     <div>{{houseRelate.account_type}}</div>
                     <div>{{houseRelate.account_name}}</div>
@@ -22,8 +22,8 @@
 
             <section v-if="checked" class="add-batch-container">
                 <div class="batch-info">
-                    <van-cell title="总楼层" :value="levelVal[1] + '(' + levelVal[0] + ')'" @click="openPopup('level')" is-link />
-                    <van-cell title="每层房号数" :value="floorVal" @click="openPopup('floor')" is-link />
+                    <van-cell title="总楼层" :value="houseInfo.levelVal[1] + '(' + houseInfo.levelVal[0] + ')'" @click="openPopup('level')" is-link />
+                    <van-cell title="每层房号数" :value="houseInfo.floorVal" @click="openPopup('floor')" is-link />
                     <van-field label="房号前缀" v-model="value" placeholder="如A" />
                 </div>
                 
@@ -84,10 +84,6 @@ export default {
             list: ['健身房','游泳池','洗衣房','停车位','收快递'],
 
             // 值
-            typeVal: '住宅/小区/公寓',
-            levelVal: ['电梯',7],
-            floorVal: 5,
-
             typeShow: false,
             levelShow: false,
             floorShow: false,
@@ -115,6 +111,9 @@ export default {
                 house_name: '请选择',
                 address: '请选择',
                 account_id: '',
+                typeVal: '住宅/小区/公寓',
+                levelVal: ['电梯',7],
+                floorVal: 5,
             },
             // 房产相关信息（辅助信息）
             houseRelate: {
@@ -155,22 +154,12 @@ export default {
         // 上拉菜单确定选择
         onConfirm(value, index) {
             // this.$toast(`当前值：${value}, 当前索引：${index}`);
-            this[this.popupType + 'Val'] = value;
+            this.houseInfo[this.popupType + 'Val'] = value;
             this[this.popupType + 'Show'] = false;
         },
 
     
-        // 下一步
-        nextStep(){
-            // 判断是否填写房产名和详细地址
-            if(this.houseInfo.house_name == '请选择'){ return this.$toast.fail('房产名不能为空'); }
-            if(this.houseInfo.address == '请选择'){ return this.$toast.fail('详细地址不能为空'); }
-            if(this.checked){
-                this.$router.push({path: '/batchAddRoom'})
-            }else{
-                this.$router.push({path: '/addRoomNumber'})
-            } 
-        },
+        
 
         /*获取子页面信息*/
         // 获取房产名
@@ -225,7 +214,7 @@ export default {
         },
 
 
-        /* 去往子页面 */
+        /* 去往子页面*/
         // 去往选择房产页面
         goSelectHouse(){
             if(this.houseRelate.lat == 0){
@@ -255,7 +244,21 @@ export default {
                 }
                 this.$router.push({path: '/selectPosition', query: param })
             }
-        }
+        },
+
+        // 下一步
+        nextStep(){
+            // 判断是否填写房产名和详细地址
+            if(this.houseInfo.house_name == '请选择'){ return this.$toast.fail('房产名不能为空'); }
+            if(this.houseInfo.address == '请选择'){ return this.$toast.fail('详细地址不能为空'); }
+
+            // 判断是否批量添加
+            if(this.checked){
+                this.$router.push({path: '/batchAddRoom', query: this.houseInfo})
+            }else{
+                this.$router.push({path: '/addRoomNumber', query: this.houseInfo})
+            } 
+        },
     }
 }
 </script>

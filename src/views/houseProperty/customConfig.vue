@@ -5,7 +5,7 @@
         </van-nav-bar>
 
         <section>
-        	<van-swipe-cell v-for="(item, key) in dispose" :key="key" class="config-list" :ref="'ceshi' + key" :before-close="beforeClose">
+        	<van-swipe-cell v-for="(item, key) in disposeList" :key="key" class="config-list" :ref="'dispose' + key" :before-close="beforeClose">
 	            <van-field v-model="item.name">
 	                <i slot="left-icon" class="iconfont icon-weixin" @click="openSidebar(key)"></i>
 	            </van-field>
@@ -21,11 +21,7 @@ export default {
     name: 'CustomConfig',
     data () {
         return {
-            dispose:[
-                { name: '冰箱' },
-                { name: '空调' },
-                { name: '洗衣机' }
-            ],
+            disposeList:[],
 
         }
     },
@@ -35,6 +31,20 @@ export default {
     methods: {
         // 初始化
         init(){
+            this.getTags();
+        },
+
+        // 获取房间配置列表
+        getTags(){
+            let url = "house/getTags";
+            let params = {
+                uid: 100118,
+                name: this.setVal
+            }
+
+            this.$post(url, params).then((res) => {
+                this.disposeList = res.data;
+            });
         },
 
         // 返回上一页
@@ -45,11 +55,11 @@ export default {
 
         // 打开单元格侧边栏
         openSidebar(key){
-            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("ceshi") == 0)
+            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("dispose") == 0)
 
             // 循环判断，打开某行侧边栏时，关闭其他的侧边栏
             for(let i in refArr){
-                if(refArr[i] == 'ceshi' + key){
+                if(refArr[i] == 'dispose' + key){
                     this.$refs[refArr[i]][0].open('right');
                 }else{
                     this.$refs[refArr[i]][0].close();
@@ -62,9 +72,9 @@ export default {
 
         // 删除一项房间配置
         delDisposeItem(key){
-            this.dispose.splice(key,1); 
+            this.disposeList.splice(key,1); 
 
-            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("ceshi") == 0)
+            let refArr = Object.keys(this.$refs).filter(item => item.indexOf("dispose") == 0)
             for(let i in refArr){
                 if(this.$refs[refArr[i]].length > 0){
                     this.$refs[refArr[i]][0].close();
@@ -74,7 +84,25 @@ export default {
 
         // 保存
         saveCustom(){
-        	this.goPrevPage();
+            // let 
+            let url = "house/editTags";
+            let params = {
+                uid: 100118,
+                tags: this.disposeList
+            }
+
+            const toast = this.$toast.loading({
+                duration: 0, // 持续展示 toast
+                forbidClick: true,
+                message: '保存中...',
+            });
+            this.$post(url, params).then((res) => {
+                toast.clear();
+                
+                this.$emit('refreshDisposeList');
+                this.goPrevPage();
+            });
+        	
         }
     }
 }

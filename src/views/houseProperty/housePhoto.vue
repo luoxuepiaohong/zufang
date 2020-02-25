@@ -3,7 +3,7 @@
         <van-nav-bar title="照片" left-arrow  @click-left="goPrevPage"></van-nav-bar>
         
         <section class="house-photo-list">
-            <van-uploader v-model="photoList" preview-size="calc(25vw - 10px)" multiple :after-read="afterRead" delete="deletePhoto" />
+            <van-uploader v-model="fileList" preview-size="calc(25vw - 10px)" multiple :after-read="afterRead" @delete="deletePhoto" />
         </section>
     </div>
 </template>
@@ -14,11 +14,16 @@ export default {
     name: 'HousePhoto',
     data () {
         return {
+            fileList: [],
+
             photoList: []
         }
     },
-    mounted() {
-        this.init();
+    created(){
+        if(this.$route.query && Object.keys(this.$route.query).length > 0){
+            this.photoList = this.$route.query.imgList;
+            this.fileList = this.$route.query.imgList;
+        }
     },
     methods: {
         // 初始化
@@ -27,7 +32,7 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            // this.$router.push({path: '/addRoomNumber'})
+            this.$emit('getPhotoList',this.photoList);
             this.$router.back(-1);
         },
 
@@ -44,8 +49,8 @@ export default {
                     params.append('file', file[i].file);
 
                     this.$post(url, params).then((res) => {
-                        console.log("res:",res,i);
                         file[i].status = 'done';
+                        this.photoList[i] = { url: res.data.src };
                     });
                 }
             }else{
@@ -57,26 +62,18 @@ export default {
                 params.append('file', file.file);
 
                 this.$post(url, params).then((res) => {
-                    console.log(res,this.photoList);
                     file.status = 'done';
+                    this.photoList.push( { url: res.data.src })
                 });
             }
-            
-
-            // setTimeout(() => {
-            //     file.status = 'done';
-            // }, 1000);
-            // sessionStorage.setItem('photoList',JSON.stringify(this.photoList));
         },
 
         // 删除图片
-        deletePhoto(file){
-            console.log(file);
-            sessionStorage.setItem('photoList',JSON.stringify(this.photoList));
-        }
+        deletePhoto(file,detail){
+            this.photoList.splice(detail.index, 1);
+        },
 
-        
-        
+         // 
     }
 }
 </script>
