@@ -9,11 +9,11 @@
                 <span slot="button" class="input-tail">栋</span>
             </van-field>
             <van-field v-model="houseOption.room.room_no" placeholder="如 108" required label="房号" input-align="right" />
-            <router-link :to="{path: '/housePhoto', query: {imgList: houseOption.room.img}}" class="photo-album">
+            <router-link :to="{path: '/housePhoto', query: {imgList: houseOption.room.room_data.img}}" class="photo-album">
                 <span class="photo-name">相册</span>
                 <div class="phone-thumbnail">
-                    <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1582643520538&di=caec96aa432345a535684ddffd014185&imgtype=0&src=http%3A%2F%2Ftrademark-pics-search.oss-cn-shanghai.aliyuncs.com%2Fsmall%2Ft4518608796238848.jpg" v-if="houseOption.room.img.length == 0">
-                    <img :src="houseOption.room.img[0].url" v-else>
+                    <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1582643520538&di=caec96aa432345a535684ddffd014185&imgtype=0&src=http%3A%2F%2Ftrademark-pics-search.oss-cn-shanghai.aliyuncs.com%2Fsmall%2Ft4518608796238848.jpg" v-if="houseOption.room.room_data.img.length == 0">
+                    <img :src="houseOption.room.room_data.img[0].url" v-else>
                     <span class="phone-total">0张</span>
                 </div>
             </router-link>
@@ -95,8 +95,8 @@ export default {
                         money: "",
                         rents_cycle: "",
                         dispose: [],
+                        img: [],                  //图片列表
                     },
-                    img: [],                  //图片列表
 
                     room_no: '',
                     total_floor: '',
@@ -259,7 +259,7 @@ export default {
 
         /*获取子页面数据*/
         getPhotoList(data){
-            this.houseOption.room.img = data;
+            this.houseOption.room.room_data.img = data;
         },
         getDisposeList(data){
             this.houseOption.room.room_data.dispose = [];

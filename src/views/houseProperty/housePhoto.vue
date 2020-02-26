@@ -42,7 +42,8 @@ export default {
             let params = new FormData();
 
             if(file instanceof Array){
-                for(let i in file){
+                const photoLen = this.photoList.length;
+                for(let i=0; i<file.length; i++){
                     file[i].status = 'uploading';
                     file[i].message = '上传中...';
                     params.append('uid', 100118);  
@@ -50,7 +51,8 @@ export default {
 
                     this.$post(url, params).then((res) => {
                         file[i].status = 'done';
-                        this.photoList[i] = { url: res.data.src };
+                        this.photoList[photoLen + i] = { url: res.data.src };
+                        console.log(res,i,photoLen,photoLen + i,this.photoList);
                     });
                 }
             }else{
@@ -71,6 +73,7 @@ export default {
         // 删除图片
         deletePhoto(file,detail){
             this.photoList.splice(detail.index, 1);
+            console.log(this.photoList);
         },
 
          // 
