@@ -41,25 +41,24 @@ export default {
             let url = "upload/imgUpload";
             let params = new FormData();
 
-            if(file instanceof Array){
+            if(file instanceof Array){          //多图上传
                 const photoLen = this.photoList.length;
+
                 for(let i=0; i<file.length; i++){
                     file[i].status = 'uploading';
                     file[i].message = '上传中...';
                     params.append('uid', 100118);  
                     params.append('file', file[i].file);
-
+  
                     this.$post(url, params).then((res) => {
                         file[i].status = 'done';
                         this.photoList[photoLen + i] = { url: res.data.src };
-                        console.log(res,i,photoLen,photoLen + i,this.photoList);
                     });
                 }
-            }else{
+            }else{                              //单图上传
                 file.status = 'uploading';
                 file.message = '上传中...';
 
-                
                 params.append('uid', 100118);  
                 params.append('file', file.file);
 
