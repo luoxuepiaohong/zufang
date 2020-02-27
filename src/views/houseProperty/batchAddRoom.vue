@@ -4,15 +4,10 @@
         <van-nav-bar title="确认房号" left-arrow  @click-left="goPrevPage" v-if="this.$router.history.current.name == 'BatchAddRoom'">
         	<span slot="right" class="nav-bar-right" @click="nextStep">下一步</span>
         </van-nav-bar>
-        <!-- 应用房间时确认房号 -->
-        <van-nav-bar title="确认房号" v-else>
-        	<span slot="left" class="nav-bar-right" @click="goPrevPage">上一步</span>
-        	<span slot="right" class="nav-bar-right" @click="confirmSave">保存</span>
-        </van-nav-bar>
 		
 		<!--  -->
         <section class="batch-add-room-list">
-        	<van-checkbox-group v-model="result">
+        	<van-checkbox-group v-model="selectRoom">
                 <van-cell-group>
                 	<div v-for="(item, key) in roomList" :key="key">
                 		<van-cell clickable :title="item.level" @click="toggle(key)">
@@ -39,8 +34,7 @@ export default {
     name: 'BatchAddRoom',
     data () {
         return {
-            result: [],
-            list: [1,2,3,4,5,6,7],
+            selectRoom: [],
             roomList: [
             	// {
             	// 	level: 1,
@@ -106,25 +100,29 @@ export default {
         }
     },
     created(){
-    	let item = {
-    		level: 6,
-    		room: 5,
-    	}
-    	for(let i=1; i<=item.level; i++){
-    		this.roomList.push({
-    			level: i,
-    			room: []
-    		})
-    		for(let j=1; j<=item.room; j++){
-    			let tempNum = j > 9 ? (i + '' + j) : (i + '0' + j);
-    			this.roomList[i-1].room.push({
-    				name: tempNum, 
-    				checked: true 
-    			})
-    		}
-    	}
+    	if(this.$route.query && this.$route.query.house){
+            
+            this.houseConfig = this.$route.query;
 
-    	this.result = [...this.roomList]
+            // 循环添加房间
+            for(let i=1; i<=this.houseConfig.room.total_floor; i++){
+                this.roomList.push({
+                    level: i,
+                    room: []
+                })
+                for(let j=1; j<=this.houseConfig.room.floor; j++){
+                    let tempNum = j > 9 ? (i + '' + j) : (i + '0' + j);
+                    this.roomList[i-1].room.push({
+                        name: tempNum, 
+                        checked: true 
+                    })
+                }
+                // 默认选中所有
+                this.$nextTick(function(){
+                    this.$refs.checkboxes[i - 1].toggle();
+                })
+            }
+        }
     },
     mounted() {
         this.init();
@@ -136,16 +134,14 @@ export default {
 
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/addHouse'})
+            this.$router.back(-1);
         },  
 
-        // 上一步
-        lastStep(){
-        	this.$router.back(-1);
-        },
         // 下一步
         nextStep(){
-        	this.$router.push({path: '/batchConfigList'})
+            let params = Object.assign({roomList: this.roomList},this.houseConfig);
+
+        	this.$router.push({path: '/batchConfigList',query: params})
         },
 
         // 选择
@@ -164,8 +160,8 @@ export default {
         	let noAllCheck = this.roomList[key].room.some(item => item.checked == false);
 
         	if(noAllCheck){                
-        		for(let i in this.result){
-        			if(this.result[i].level == key+1){
+        		for(let i in this.roomList){
+        			if(this.roomList[i].level == key+1){
         				this.$refs.checkboxes[key].checked = false;
         				break;
         			}
@@ -174,12 +170,6 @@ export default {
         		this.$refs.checkboxes[key].checked = true;
         	}
 
-        },
-
-
-        // 保存
-        confirmSave(){
-        	this.lastStep();
         }
     }
 }

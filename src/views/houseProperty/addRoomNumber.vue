@@ -14,7 +14,7 @@
                 <div class="phone-thumbnail">
                     <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1582643520538&di=caec96aa432345a535684ddffd014185&imgtype=0&src=http%3A%2F%2Ftrademark-pics-search.oss-cn-shanghai.aliyuncs.com%2Fsmall%2Ft4518608796238848.jpg" v-if="houseOption.room.room_data.img.length == 0">
                     <img :src="houseOption.room.room_data.img[0].url" v-else>
-                    <span class="phone-total">0张</span>
+                    <span class="phone-total">{{houseOption.room.room_data.img.length}}张</span>
                 </div>
             </router-link>
         </van-cell-group>
@@ -176,10 +176,8 @@ export default {
 
     created(){
         if(this.$route.query && Object.keys(this.$route.query).length > 0){
-            this.houseOption.house.house_name = this.$route.query.house_name;
-            this.houseOption.house.address = this.$route.query.address;
-            this.houseOption.house.house_type = this.$route.query.typeVal;
-            this.houseOption.house.account_id = this.$route.query.account_id;
+            this.houseOption.house = this.$route.query.house;
+            console.log(this.houseOption);
         }
     },
     methods: {
@@ -207,7 +205,6 @@ export default {
             this.othersInfo[this.othersInfo.popupType + 'Val'] = value.toString();
             this[this.othersInfo.popupType + 'Show'] = false;
         },
-
 
         // 打开单元格侧边栏
         openSidebar(key){
@@ -249,12 +246,22 @@ export default {
             params.house.uid = 100118;
             params.room.room_data.room_type = this.othersInfo.typeVal;
             params.room.room_data.rents_cycle = this.othersInfo.periodVal;
-            console.log(params);
-            this.$post(url, params).then((res) => {
-                console.log(res);
-            });
 
-            this.saveStatus = false;
+            /*验证*/
+            if(params.room.room_no == ''){ return this.$toast.fail('房号不能为空'); }
+            if(this.othersInfo.levelVal == ''){ return this.$toast.fail('楼层不能为空'); }
+            if(this.othersInfo.typeVal == ''){ return this.$toast.fail('户型不能为空'); }
+
+            if(params.room.room_data.area == ''){ return this.$toast.fail('面积不能为空'); }
+            if(params.room.room_data.money == ''){ return this.$toast.fail('月租金不能为空'); }
+            if(this.othersInfo.periodVal == ''){ return this.$toast.fail('收租周期不能为空'); }
+            
+
+            this.saveStatus = true;
+
+            this.$post(url, params).then((res) => {
+                this.saveStatus = false;
+            });
         },
 
         /*获取子页面数据*/

@@ -7,9 +7,9 @@
         <!-- 添加房产需要填写的资料容器 -->
         <section class="add-house-container">
             <section>
-                <van-cell title="房产名" center :value="houseInfo.house_name" is-link @click="goSelectHouse" />
-                <van-cell title="详细地址" center :value="houseInfo.address" is-link @click="goSelectPosition" />
-                <van-cell title="房产类型" :value="houseInfo.typeVal" is-link @click="openPopup('type')" />
+                <van-cell title="房产名" center :value="houseInfo.house.house_name" is-link @click="goSelectHouse" />
+                <van-cell title="详细地址" center :value="houseInfo.house.address" is-link @click="goSelectPosition" />
+                <van-cell title="房产类型" :value="houseRelate.typeVal" is-link @click="openPopup('type')" />
                 <van-cell title="收款账户" center is-link to="accountList">
                     <div>{{houseRelate.account_type}}</div>
                     <div>{{houseRelate.account_name}}</div>
@@ -18,20 +18,20 @@
 
             <p class="tips">收款账户将附加在账单中显示</p>
 
-            <van-switch-cell v-model="checked" title="批量添加房号" />
+            <van-switch-cell v-model="multiSelect" title="批量添加房号" />
 
-            <section v-if="checked" class="add-batch-container">
+            <section v-if="multiSelect" class="add-batch-container">
                 <div class="batch-info">
-                    <van-cell title="总楼层" :value="houseInfo.levelVal[1] + '(' + houseInfo.levelVal[0] + ')'" @click="openPopup('level')" is-link />
-                    <van-cell title="每层房号数" :value="houseInfo.floorVal" @click="openPopup('floor')" is-link />
-                    <van-field label="房号前缀" v-model="value" placeholder="如A" />
+                    <van-cell title="总楼层" :value="houseRelate.levelVal[1] + '(' + houseRelate.levelVal[0] + ')'" @click="openPopup('level')" is-link />
+                    <van-cell title="每层房号数" :value="houseRelate.floorVal" @click="openPopup('floor')" is-link />
+                    <van-field label="房号前缀" v-model="houseInfo.room.house_no" placeholder="如A" />
                 </div>
                 
                 <div class="batch-facility">
                     <h4>公共设施</h4>
-                    <van-checkbox-group v-model="result">
+                    <van-checkbox-group v-model="houseInfo.room.installation">
                         <van-cell-group>
-                            <van-cell v-for="(item, index) in list"
+                            <van-cell v-for="(item, index) in installationList"
                               clickable
                               :key="item"
                               :title="item"
@@ -78,17 +78,16 @@ export default {
     name: 'AddHouse',
     data () {
         return {
-            checked: false,
-            value: '',
-            result: [],
-            list: ['健身房','游泳池','洗衣房','停车位','收快递'],
+            multiSelect: false,
+
+            installationList: ['健身房','游泳池','洗衣房','停车位','收快递'],
 
             // 值
             typeShow: false,
             levelShow: false,
             floorShow: false,
 
-            popupType: '',
+            
 
             // 上拉菜单
             typeColumns: ['厂房/车间', '仓库/车库/停车位', '写字楼/办公室', '住宅/小区/公寓', '商铺/门市房'],
@@ -108,12 +107,20 @@ export default {
 
             // 房产信息
             houseInfo: {
-                house_name: '请选择',
-                address: '请选择',
-                account_id: '',
-                typeVal: '住宅/小区/公寓',
-                levelVal: ['电梯',7],
-                floorVal: 5,
+                house:{
+                    house_name: '请选择',
+                    address: '请选择',
+                    house_type: '住宅/小区/公寓',
+                    account_id: '',
+                },
+
+                room: {
+                    total_floor: 7,
+                    floor: 5,
+                    house_no: "",
+                    room_stair: "电梯",
+                    installation: []
+                }
             },
             // 房产相关信息（辅助信息）
             houseRelate: {
@@ -124,6 +131,12 @@ export default {
 
                 account_type: '请选择收款账户',
                 account_name: '',
+
+                typeVal: '住宅/小区/公寓',
+                levelVal: ['电梯',7],
+                floorVal: 5,
+
+                popupType: '',
             }
 
         }
@@ -148,14 +161,25 @@ export default {
 
         // 打开上拉菜单
         openPopup(type){
-            this.popupType = type;
-            this[this.popupType + 'Show'] = true;
+            this.houseRelate.popupType = type;
+            this[this.houseRelate.popupType + 'Show'] = true;
         },
         // 上拉菜单确定选择
         onConfirm(value, index) {
-            // this.$toast(`当前值：${value}, 当前索引：${index}`);
-            this.houseInfo[this.popupType + 'Val'] = value;
-            this[this.popupType + 'Show'] = false;
+            switch(this.houseRelate.popupType){
+                case 'type':
+                    this.houseInfo.house.house_type = value;
+                    break;
+                case 'level':
+                    this.houseInfo.room.total_floor = value[1];
+                    this.houseInfo.room.room_stair = value[0];
+                    break;
+                case 'floor':
+                    this.houseInfo.room.floor = value;
+                    break;
+            }
+            this.houseRelate[this.houseRelate.popupType + 'Val'] = value;
+            this[this.houseRelate.popupType + 'Show'] = false;
         },
 
     
@@ -164,10 +188,10 @@ export default {
         /*获取子页面信息*/
         // 获取房产名
         getHouseName(data){
-            this.houseInfo.house_name = data.title;
+            this.houseInfo.house.house_name = data.title;
 
             if(data.hasOwnProperty('address')){
-                this.houseInfo.address = data.address;
+                this.houseInfo.house.address = data.address;
                 this.houseRelate.lat = data.location.lat;
                 this.houseRelate.lng = data.location.lng;
                 this.houseRelate.city = data.city;
@@ -176,7 +200,7 @@ export default {
         },
         // 获得街道名
         confirmStreet(data){
-            this.houseInfo.address = data.address;
+            this.houseInfo.house.address = data.address;
             this.houseRelate.lat = data.lat;
             this.houseRelate.lng = data.lng;
             this.houseRelate.city = data.city;
@@ -184,14 +208,14 @@ export default {
         },
         // 获取自定义街道名
         customStreet(data){
-            this.houseInfo.address = data.address;
+            this.houseInfo.house.address = data.address;
             this.houseRelate.lat = 0;
             this.houseRelate.lng = 0;
         },
         // 获取选择的账户信息
         selectAccount(data){
             console.log('获取选择的账户信息:',data);
-            this.houseInfo.account_id = data.id;
+            this.houseInfo.house.account_id = data.id;
 
             switch(data.type){
                 case 1:
@@ -240,7 +264,7 @@ export default {
                     lng: this.houseRelate.lng,
                     city: this.houseRelate.city,
                     adcode: String(this.houseRelate.adcode),
-                    address: this.houseInfo.address
+                    address: this.houseInfo.house.address
                 }
                 this.$router.push({path: '/selectPosition', query: param })
             }
@@ -249,11 +273,11 @@ export default {
         // 下一步
         nextStep(){
             // 判断是否填写房产名和详细地址
-            if(this.houseInfo.house_name == '请选择'){ return this.$toast.fail('房产名不能为空'); }
-            if(this.houseInfo.address == '请选择'){ return this.$toast.fail('详细地址不能为空'); }
+            if(this.houseInfo.house.house_name == '请选择'){ return this.$toast.fail('房产名不能为空'); }
+            if(this.houseInfo.house.address == '请选择'){ return this.$toast.fail('详细地址不能为空'); }
 
             // 判断是否批量添加
-            if(this.checked){
+            if(this.multiSelect){
                 this.$router.push({path: '/batchAddRoom', query: this.houseInfo})
             }else{
                 this.$router.push({path: '/addRoomNumber', query: this.houseInfo})

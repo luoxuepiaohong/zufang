@@ -39,32 +39,21 @@ export default {
         // 存储sessionstorage
         afterRead(file){
             let url = "upload/imgUpload";
-            let params = new FormData();
 
-            if(file instanceof Array){          //多图上传
-                const photoLen = this.photoList.length;
+            const files = file instanceof Array ? file : [file];
+            const photoLen = this.photoList.length;
+            
+            for(let i=0; i<files.length; i++){
+                files[i].status = 'uploading';
+                files[i].message = '上传中...';
 
-                for(let i=0; i<file.length; i++){
-                    file[i].status = 'uploading';
-                    file[i].message = '上传中...';
-                    params.append('uid', 100118);  
-                    params.append('file', file[i].file);
-  
-                    this.$post(url, params).then((res) => {
-                        file[i].status = 'done';
-                        this.photoList[photoLen + i] = { url: res.data.src };
-                    });
-                }
-            }else{                              //单图上传
-                file.status = 'uploading';
-                file.message = '上传中...';
-
+                let params = new FormData();
                 params.append('uid', 100118);  
-                params.append('file', file.file);
+                params.append('file', files[i].file);
 
                 this.$post(url, params).then((res) => {
-                    file.status = 'done';
-                    this.photoList.push( { url: res.data.src })
+                    files[i].status = 'done';
+                    this.photoList[photoLen + i] = { url: res.data.src };
                 });
             }
         },

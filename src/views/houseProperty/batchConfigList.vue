@@ -3,8 +3,8 @@
         <van-nav-bar title="房间配置" left-arrow @click-left="goPrevPage">
             <span slot="right" class="nav-bar-right" @click="saveConfig">保存</span>
         </van-nav-bar>
-        <!-- 添加房产 -->
-        <router-link to="/batchConfigItem" class="header-add">
+        <!-- 添加配置 -->
+        <router-link :to="{path: '/batchConfigItem', query: {roomList: houseConfig.roomList}}" class="header-add">
 	        <van-icon name="add" />新增配置
         </router-link>
 		
@@ -78,8 +78,13 @@ export default {
     name: 'BatchConfigList',
     data () {
         return {
-            msg: 'Welcome to Your Vue.js App-1111',
-            isLoading: false
+            houseConfig: [],
+            room_data: [],
+        }
+    },
+    created(){
+        if(this.$route.query && this.$route.query.roomList){
+            this.houseConfig = this.$route.query;
         }
     },
     methods: {
@@ -91,12 +96,7 @@ export default {
         saveConfig(){
 
         },
-        onRefresh() {
-		    setTimeout(() => {
-		        this.$toast('刷新成功');
-		        this.isLoading = false;
-		    }, 500);
-	    }
+        
     }
 }
 </script>
