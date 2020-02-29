@@ -48,7 +48,7 @@
         <van-cell value="房间配置可以是家私、水电存折、钥匙号等" class="tips" />
 
 		<!-- 应用房间 -->
-        <van-cell title="应用房间" :value="room_item.room_no.length || '请选择'" is-link :to="{path: '/applyRoom', query: {roomList: roomList}}"  />
+        <van-cell title="应用房间" :value="room_item.room_no.length ? room_item.room_no.length + '间' : '请选择'" is-link :to="{path: '/applyRoom', query: {roomNo: room_item.room_no}}"  />
 
         <!-- 户型 -->
         <van-popup v-model="typeShow" position="bottom">
@@ -61,7 +61,7 @@
 		
 
         <transition name="slide-right" mode="out-in">
-            <router-view v-on:getPhotoList="getPhotoList" v-on:getDisposeList="getDisposeList"></router-view>
+            <router-view v-on:getPhotoList="getPhotoList" v-on:getDisposeList="getDisposeList" v-on:getApplyRoom="getApplyRoom"></router-view>
         </transition>
     </div>
 </template>
@@ -127,8 +127,10 @@ export default {
     },
 
     created(){
-        if(this.$route.query && this.$route.query.roomList){
-            this.roomList = this.$route.query.roomList;
+        if(this.$route.query && this.$route.query.room_item){
+            this.room_item = this.$route.query.room_item;
+
+            // 这里调整编辑时户型和收租周期上拉菜单的默认选项
         }
     },
     methods: {
@@ -171,7 +173,7 @@ export default {
 
         // 删除一项房间配置
         delDisposeItem(key){
-            this.dispose.splice(key,1); 
+            this.room_item.dispose.splice(key,1); 
 
             let refArr = Object.keys(this.$refs).filter(item => item.indexOf("dispose") == 0)
             for(let i in refArr){
@@ -188,6 +190,10 @@ export default {
             if(this.room_item.area == ''){ return this.$toast.fail('面积不能为空'); }
             if(this.room_item.money == ''){ return this.$toast.fail('月租金不能为空'); }
             if(this.room_item.rents_cycle == ''){ return this.$toast.fail('收租周期不能为空'); }
+            // console.log(this.room_item);
+            
+            this.$emit('getRoomData', this.room_item);
+            this.goPrevPage();
         },
 
         /*获取子页面数据*/
@@ -201,6 +207,9 @@ export default {
                     this.room_item.dispose.push({ name: data[i], remarks: '' })
                 }
             }
+        },
+        getApplyRoom(data){
+            this.room_item.room_no = data;
         }
     }
 }

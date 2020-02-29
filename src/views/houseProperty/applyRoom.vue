@@ -1,8 +1,8 @@
 <template>
     <div class="apply-room">
     	<!-- 批量添加时确认房号 -->
-        <van-nav-bar title="确认房号" left-arrow  @click-left="goPrevPage">
-        	<span slot="right" class="nav-bar-right" @click="nextStep">下一步</span>
+        <van-nav-bar title="应用房间" left-arrow  @click-left="goPrevPage">
+        	<span slot="right" class="nav-bar-right" @click="saveApply">保存</span>
         </van-nav-bar>
 		
 		<!--  -->
@@ -11,10 +11,10 @@
                 <van-cell-group>
                 	<div v-for="(item, key) in roomList" :key="key">
                 		<van-cell clickable :title="item.level" @click="toggle(key)">
-                      		<van-checkbox :name="item" ref="checkboxes" slot="right-icon"/>
+                      		<van-checkbox :name="item" ref="checkboxes" slot="right-icon" :disabled="disabledArr[key]" />
                     	</van-cell>
                 		<ol class="room-number-list">
-                			<li v-for="(index, idx) in item.room" :class="{'active': index.checked}" @click="clickRoom(key, idx)">{{index.name}}</li>
+                			<li v-for="(index, idx) in item.room" :class="{'active': index.checked, 'disabled': index.disabled}" @click="clickRoom(key, idx)">{{index.name}}</li>
                 		</ol>
                 	</div>
                 </van-cell-group>
@@ -38,45 +38,106 @@ export default {
         }
     },
     created(){
-    	console.log('进来该页面');
+    	// 获取用户确认的房号列表
+    	this.roomList = JSON.parse(sessionStorage.getItem("conformRoom")) || [];
+    	// 获取用户已经应用于房间配置上的房间列表
+    	const disposeRoom = ['102','103','104'];
+    	// 获取用户在该配置上选中的房间列表
+    	const checkedRoom = this.$route.query.roomNo || [];
+
+    	// 1、把用户在该配置上没有选中房间全部重置为未选状态
+    	// 2、把用户在其他配置上应用的房间全部调整为不可点击状态
+    	this.roomList.forEach((value,index) => {
+            this.roomList[index].room = this.roomList[index].room.map(item => {
+
+            	// 调整选中状态
+            	if(checkedRoom.length > 0){
+            		for(let i=0; i<checkedRoom.length; i++){
+	            		if(item.name == checkedRoom[i]){
+	            			item.checked = true;
+	            			break
+	            		}else if(i == checkedRoom.length - 1){
+	            			item.checked = false;
+	            		}
+	            	}
+            	}else{
+            		item.checked = false;
+            	}
+            	
+            	// 调整点击状态
+            	for(let j=0; j<disposeRoom.length; j++){
+            		if(item.name == disposeRoom[j]){
+            			item.disabled = true;
+            			break
+            		}else if(j == disposeRoom.length - 1){
+            			item.disabled = false;
+            		}
+            	}
+            	return item;
+            })
+
+            if(!this.roomList[index].room.some(item => !item.disabled && !item.checked)){
+            	this.$nextTick(function(){
+            		this.$refs.checkboxes[index].toggle();
+            	})
+            }
+        })
     },
-    mounted() {
-        this.init();
+    computed: {
+    	disabledArr: function(){
+    		let tempArr = [];
+    		for(let i in this.roomList){
+    			let state = this.roomList[i].room.some(item => !item.disabled)
+    			tempArr[i] = !state;
+    		}
+    		return tempArr;
+    	}
     },
     methods: {
-        // 初始化
-        init(){
-        },
-
         // 返回上一页
         goPrevPage(){
             this.$router.back(-1);
         },  
 
-        // 下一步
-        nextStep(){
-            let params = Object.assign({roomList: this.roomList},this.houseConfig);
-
-        	this.$router.push({path: '/batchConfigList',query: params})
+        // 保存应用房间
+        saveApply(){
+            let applyRoom = [];
+            for(let i=0; i<this.roomList.length; i++){
+            	for(let j=0; j<this.roomList[i].room.length; j++){
+            		if(!this.roomList[i].room[j].disabled && this.roomList[i].room[j].checked){
+            			applyRoom.push(this.roomList[i].room[j].name);
+            		}
+            	}
+            }
+            this.$emit('getApplyRoom',applyRoom);
+            this.goPrevPage();
         },
 
         // 选择
         toggle(index) {
+        	// 若该层房间均已禁用，则不做任何操作
+        	if(this.disabledArr[index]){ return; }
+
             this.$refs.checkboxes[index].toggle();
             for(let i in this.roomList[index].room){
-            	this.roomList[index].room[i].checked = !this.$refs.checkboxes[index].checked
+            	if(!this.roomList[index].room[i].disabled){
+            		this.roomList[index].room[i].checked = !this.$refs.checkboxes[index].checked
+            	}
             }
         },
 
         // 点击房间
         clickRoom(key, idx){
+        	// 若该房间已禁用，则不做任何操作
+        	if(this.disabledArr[key]){ return; }
+
         	// 单击取反
         	this.roomList[key].room[idx].checked = !this.roomList[key].room[idx].checked;
         	// 判断点击之后该层房间是否全选（true: 不全选,false: 全选）
-        	let noAllCheck = this.roomList[key].room.some(item => item.checked == false);
+        	let noAllCheck = this.roomList[key].room.some(item => !item.disabled && !item.checked);
 
         	if(noAllCheck){                
-        		for(let i in this.roomList){
+        		for(let i=0; i<this.roomList.length; i++){
         			if(this.roomList[i].level == key+1){
         				this.$refs.checkboxes[key].checked = false;
         				break;
@@ -139,8 +200,13 @@ export default {
         			color: #999;
         			&.active{
         				background: #5788e4;
-        				border-color: #5788e4;;
+        				border-color: #5788e4;
         				color: #fff;
+        			}
+        			&.disabled{
+						background: #dcdcdc;
+        				border-color: #dcdcdc;
+        				color: #999;
         			}
         		}
         	}

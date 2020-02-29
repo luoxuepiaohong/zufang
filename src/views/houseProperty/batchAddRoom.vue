@@ -175,7 +175,7 @@ export default {
         			color: #999;
         			&.active{
         				background: #5788e4;
-        				border-color: #5788e4;;
+        				border-color: #5788e4;
         				color: #fff;
         			}
         		}

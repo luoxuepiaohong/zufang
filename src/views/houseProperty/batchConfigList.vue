@@ -4,71 +4,43 @@
             <span slot="right" class="nav-bar-right" @click="saveConfig">保存</span>
         </van-nav-bar>
         <!-- 添加配置 -->
-        <router-link :to="{path: '/batchConfigItem', query: {roomList: houseConfig.roomList}}" class="header-add">
+        <router-link to="/batchConfigItem" class="header-add">
 	        <van-icon name="add" />新增配置
         </router-link>
 		
         <ul class="list-container">
-        	<li class="list-container-item">
+        	<li class="list-container-item" v-for="(item, key) in room_data" :key="key">
         		<div class="item-header">
-        			<div class="item-header-title">配置1</div>
+        			<div class="item-header-title">配置{{key + 1}}</div>
 					
 					<div class="item-header-btn">
-						<span>删除</span>
-        				<span>编辑</span>
+						<span @click="delConfigItem(key)">删除</span>
+        				<span @click="editConfigItem(key)">编辑</span>
 					</div>
         		</div>
         		<ul class="item-info">
         			<li>
         				<span class="item-info-label">户型</span>
-        				<span>1房1厅1卫</span>
+        				<span>{{item.room_type}}</span>
         			</li>
         			<li>
         				<span class="item-info-label">面积</span>
-        				<span>17</span>
+        				<span>{{item.area}}</span>
         			</li>
         			<li>
         				<span class="item-info-label">月租金</span>
-        				<span>280</span>
+        				<span>{{item.money}}</span>
         			</li>
         			<li>
         				<span class="item-info-label">收租周期</span>
-        				<span>付1押金自定义</span>
-        			</li>
-        		</ul>
-        	</li>
-        	<li class="list-container-item">
-        		<div class="item-header">
-        			<div class="item-header-title">配置2</div>
-					
-					<div class="item-header-btn">
-						<span>删除</span>
-        				<span>编辑</span>
-					</div>
-        		</div>
-        		<ul class="item-info">
-        			<li>
-        				<span class="item-info-label">户型</span>
-        				<span>1房1厅1卫</span>
-        			</li>
-        			<li>
-        				<span class="item-info-label">面积</span>
-        				<span>17</span>
-        			</li>
-        			<li>
-        				<span class="item-info-label">月租金</span>
-        				<span>280</span>
-        			</li>
-        			<li>
-        				<span class="item-info-label">收租周期</span>
-        				<span>付1押金自定义</span>
+        				<span>{{item.rents_cycle}}</span>
         			</li>
         		</ul>
         	</li>
         </ul>
 
         <transition name="slide-right" mode="out-in">
-            <router-view></router-view>
+            <router-view v-on:getRoomData="getRoomData"></router-view>
         </transition>
     </div>
 </template>
@@ -90,11 +62,28 @@ export default {
     methods: {
         // 返回上一页
         goPrevPage(){
-            this.$router.push({path: '/batchAddRoom'})
+            // this.$router.push({path: '/batchAddRoom'})
+            this.$router.back(-1);
         }, 
         // 保存配置
         saveConfig(){
 
+        },
+
+        // 删除单个配置
+        delConfigItem(key){
+            this.room_data.splice(key, 1);
+        },
+
+        // 编辑单个配置
+        editConfigItem(key){
+            this.$router.push({path: '/batchConfigItem', query: {room_item: this.room_data[key]}})
+            
+        },
+
+        // 获取房间数据
+        getRoomData(data){
+            this.room_data.push(data);
         },
         
     }
