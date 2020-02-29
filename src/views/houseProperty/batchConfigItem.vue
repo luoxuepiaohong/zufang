@@ -48,7 +48,7 @@
         <van-cell value="房间配置可以是家私、水电存折、钥匙号等" class="tips" />
 
 		<!-- 应用房间 -->
-        <van-cell title="应用房间" :value="room_item.room_no.length || '请选择'" is-link :to="{path: '/applicationRoom', query: {roomList: roomList}}"  />
+        <van-cell title="应用房间" :value="room_item.room_no.length || '请选择'" is-link :to="{path: '/applyRoom', query: {roomList: roomList}}"  />
 
         <!-- 户型 -->
         <van-popup v-model="typeShow" position="bottom">

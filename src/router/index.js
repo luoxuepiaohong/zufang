@@ -17,6 +17,7 @@ const CustomConfig = ()=>import("@/views/houseProperty/customConfig")
 const BatchAddRoom = ()=>import("@/views/houseProperty/batchAddRoom")
 const BatchConfigList = ()=>import("@/views/houseProperty/batchConfigList")
 const BatchConfigItem = ()=>import("@/views/houseProperty/batchConfigItem")
+const ApplyRoom = ()=>import("@/views/houseProperty/applyRoom")
 const SelectHouse = () =>import("@/views/houseProperty/selectHouse")
 const SelectPosition = () =>import("@/views/houseProperty/selectPosition")
 const SearchPosition = () =>import("@/views/houseProperty/searchPosition")
@@ -129,9 +130,9 @@ const router = new Router({
                             ]
                           },
                           {
-                            path: '/applicationRoom',
-                            name: 'ApplicationRoom',
-                            component: BatchAddRoom,
+                            path: '/applyRoom',
+                            name: 'ApplyRoom',
+                            component: ApplyRoom,
                           }
                         ]
                       }
