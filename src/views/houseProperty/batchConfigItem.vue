@@ -129,8 +129,6 @@ export default {
     created(){
         if(this.$route.query && this.$route.query.room_item){
             this.room_item = this.$route.query.room_item;
-
-            // 这里调整编辑时户型和收租周期上拉菜单的默认选项
         }
     },
     methods: {
@@ -190,6 +188,7 @@ export default {
             if(this.room_item.area == ''){ return this.$toast.fail('面积不能为空'); }
             if(this.room_item.money == ''){ return this.$toast.fail('月租金不能为空'); }
             if(this.room_item.rents_cycle == ''){ return this.$toast.fail('收租周期不能为空'); }
+            if(this.room_item.room_no.length == 0){ return this.$toast.fail('应用房间不能为空'); }
             // console.log(this.room_item);
             
             this.$emit('getRoomData', this.room_item);

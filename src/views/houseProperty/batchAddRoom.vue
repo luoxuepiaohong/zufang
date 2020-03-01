@@ -93,7 +93,7 @@ export default {
             // 添加缓存，以备后用
             sessionStorage.setItem("conformRoom",JSON.stringify(confirmRoom));
 
-        	this.$router.push({path: '/batchConfigList',query: this.houseConfig})
+        	this.$router.push({path: '/batchConfigList',query: {houseConfig: this.houseConfig}})
         },
 
         // 选择

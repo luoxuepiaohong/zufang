@@ -4,9 +4,9 @@
             <span slot="right" class="nav-bar-right" @click="saveConfig">保存</span>
         </van-nav-bar>
         <!-- 添加配置 -->
-        <router-link to="/batchConfigItem" class="header-add">
+        <div class="header-add" @click="goConfigItem('add')">
 	        <van-icon name="add" />新增配置
-        </router-link>
+        </div>
 		
         <ul class="list-container">
         	<li class="list-container-item" v-for="(item, key) in room_data" :key="key">
@@ -15,7 +15,7 @@
 					
 					<div class="item-header-btn">
 						<span @click="delConfigItem(key)">删除</span>
-        				<span @click="editConfigItem(key)">编辑</span>
+        				<span @click="goConfigItem('edit',key)">编辑</span>
 					</div>
         		</div>
         		<ul class="item-info">
@@ -54,20 +54,39 @@ export default {
             room_data: [],
         }
     },
+
     created(){
-        if(this.$route.query && this.$route.query.roomList){
-            this.houseConfig = this.$route.query;
+        console.log(this.$route);
+        if(this.$route.query && this.$route.query.houseConfig){
+            this.houseConfig = this.$route.query.houseConfig;
         }
+        console.log(this.houseConfig)
     },
     methods: {
         // 返回上一页
         goPrevPage(){
             // this.$router.push({path: '/batchAddRoom'})
+            sessionStorage.removeItem("configInfo");
             this.$router.back(-1);
         }, 
         // 保存配置
         saveConfig(){
+            if(this.room_data.length == 0){
+                return this.$toast.fail('请先添加配置');
+            }
+            let url = "house/addHouse";
+            let params = Object.assign({uid: 100118}, this.houseConfig);
 
+            params.house.uid = 100118;
+            params.room.allRoom_status = 1;
+            params.room.installation = params.room.installation.join(',');
+            params.room.room_data = this.room_data;
+            
+            console.log('params:',params);
+
+            this.$post(url, params).then((res) => {
+                console.log('res:',res);
+            });
         },
 
         // 删除单个配置
@@ -75,15 +94,40 @@ export default {
             this.room_data.splice(key, 1);
         },
 
-        // 编辑单个配置
-        editConfigItem(key){
-            this.$router.push({path: '/batchConfigItem', query: {room_item: this.room_data[key]}})
-            
+        // 去往配置页面
+        goConfigItem(type,key){
+            let configInfo = {
+                type: type,
+                disposeRoom: []
+            };
+
+            for(let i=0; i<this.room_data.length; i++){
+                if(type == 'edit' && key == i){ 
+                    configInfo.index = key;
+                    continue; 
+                }
+                configInfo.disposeRoom = [...configInfo.disposeRoom, ...this.room_data[i].room_no];
+            }
+
+            sessionStorage.setItem("configInfo",JSON.stringify(configInfo));
+
+            if(type == 'add'){
+                this.$router.push({path: '/batchConfigItem'})
+            }else{
+                this.$router.push({path: '/batchConfigItem', query: {room_item: this.room_data[key]}})
+            }
         },
 
         // 获取房间数据
         getRoomData(data){
-            this.room_data.push(data);
+            let configInfo = JSON.parse(sessionStorage.getItem("configInfo"));
+
+            if(configInfo.type == 'add'){
+                this.room_data.push(data);
+            }else{
+                this.room_data[configInfo.index] = data;
+            }
+            
         },
         
     }

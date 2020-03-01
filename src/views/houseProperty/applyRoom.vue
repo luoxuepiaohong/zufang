@@ -41,7 +41,7 @@ export default {
     	// 获取用户确认的房号列表
     	this.roomList = JSON.parse(sessionStorage.getItem("conformRoom")) || [];
     	// 获取用户已经应用于房间配置上的房间列表
-    	const disposeRoom = ['102','103','104'];
+    	const disposeRoom = JSON.parse(sessionStorage.getItem("configInfo")).disposeRoom;
     	// 获取用户在该配置上选中的房间列表
     	const checkedRoom = this.$route.query.roomNo || [];
 
