@@ -129,6 +129,26 @@ export default {
     created(){
         if(this.$route.query && this.$route.query.room_item){
             this.room_item = this.$route.query.room_item;
+
+            // 这里调整编辑时上拉菜单的默认选项
+            let room_type_arr = this.room_item.room_type.split(',');
+            let rents_cycle_arr = this.room_item.rents_cycle.split(',');
+
+            for(let i=0; i<this.typeColumns.length; i++){
+                for(let j=0; j<this.typeColumns[i].values.length; j++){
+                    if(this.typeColumns[i].values[j] == room_type_arr[i]){
+                        this.typeColumns[i].defaultIndex = j
+                    }
+                }
+            }
+            for(let i=0; i<this.periodColumns.length; i++){
+                for(let j=0; j<this.periodColumns[i].values.length; j++){
+
+                    if(this.periodColumns[i].values[j] == rents_cycle_arr[i]){
+                        this.periodColumns[i].defaultIndex = j
+                    }
+                }
+            }
         }
     },
     methods: {

@@ -29,8 +29,10 @@
                         </van-cell>
                     </van-cell-group>
                 </van-checkbox-group>
-            </div>
+            </div> 
         </section>
+        <!-- 删除按钮 -->
+        <van-button type="danger" plain block class="del-btn" @click.native="delDialog = true">删除</van-button>
         
         <!-- 房产类型 -->
         <van-popup v-model="typeShow" position="bottom">
@@ -41,6 +43,14 @@
         <van-popup v-model="floorShow" position="bottom">
             <van-picker :columns="floorColumns" title="请选择每层房间数" :default-index="4" show-toolbar @confirm="onConfirm" @cancel="floorShow = false" />
         </van-popup>
+
+        <!-- 删除弹窗 -->
+        <van-dialog v-model="delDialog" title="删除房产确认" show-cancel-button @confirm="confirmDel">
+            <p class="del-dialog-tips">
+                删除房产将一同删除房产下所有的<b>房号、租客、账单、房产配置</b>等信息，并且将<em>无法恢复</em>！！<br>
+                您确定要删除此房产吗?
+            </p>
+        </van-dialog>
 
 		
         <transition name="slide-right" mode="out-in">
@@ -74,6 +84,9 @@ export default {
             // 上拉菜单
             typeColumns: ['厂房/车间', '仓库/车库/停车位', '写字楼/办公室', '住宅/小区/公寓', '商铺/门市房'],
             floorColumns: floorNum,
+
+            // 弹窗
+            delDialog: false,
 
         }
     },
@@ -114,6 +127,12 @@ export default {
         // 保存信息
         saveEdit(){
             this.goPrevPage();
+        },
+
+        // 删除房产
+        confirmDel(){
+            // console.log('确认删除');
+            this.$router.push({path: '/houseIndex'})
         }
     }
 }
@@ -147,9 +166,9 @@ export default {
         }
         
         .edit-house-container{
-            height: calc(100vh - 50px);
+            height: calc(100vh - 90px);
             overflow: scroll;
-            padding-top: 10px;
+            padding: 10px 0;
             box-sizing: border-box;
             .tips{
                 height: 35px;
@@ -171,6 +190,28 @@ export default {
                 }
             }
         }
+        .del-btn{
+            border: 0;
+            border-top: 1px solid #f5f5f5;
+        }
+
+        .van-dialog{
+            border-radius: 8px;
+            .van-dialog__header{
+                padding-top: 15px;
+                font-size: 17px;
+            }
+            .del-dialog-tips{
+                margin: 0;
+                padding: 15px 20px;
+                font-size: 15px;
+                em{
+                    color: #f00;
+                    font-style:normal;
+                }
+            }
+        }
+        
         
     }
 </style>
