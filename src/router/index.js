@@ -24,6 +24,10 @@ const SearchPosition = () =>import("@/views/houseProperty/searchPosition")
 // 房产模块(管理)
 const RoomNumberList = ()=>import("@/views/manageHouses/roomNumberList")
 const EditHouse = ()=>import("@/views/manageHouses/editHouse")
+const TenantList = ()=>import("@/views/manageHouses/tenantList")
+const HistoryTenant = ()=>import("@/views/manageHouses/historyTenant")
+const RoomDetails = ()=>import("@/views/manageHouses/roomDetails")
+
 
 Vue.use(Router)
 
@@ -163,6 +167,23 @@ const router = new Router({
                         component: AddAccount,
                       }
                     ]
+                  }
+                ]
+              },
+              {
+                path: '/tenantList',
+                name: 'TenantList',
+                component: TenantList,
+                children: [
+                  {
+                    path: '/historyTenant',
+                    name: 'HistoryTenant',
+                    component: HistoryTenant,
+                  },
+                  {
+                    path: '/roomDetails',
+                    name: 'RoomDetails',
+                    component: RoomDetails,
                   }
                 ]
               }

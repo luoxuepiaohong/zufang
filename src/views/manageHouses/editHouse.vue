@@ -148,7 +148,7 @@ export default {
         left: 0;
         height: 100vh;
         background: #f5f5f5;
-        z-index: 99;
+        z-index: 199;
         .van-nav-bar{
             background: #5788e4;
             .van-icon-arrow-left:before{

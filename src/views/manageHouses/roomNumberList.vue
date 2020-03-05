@@ -23,7 +23,7 @@
         
         <!-- 房号列表 -->
         <ul class="room-list-container">
-            <li class="room-item">
+            <li class="room-item" @click="goTenantList()">
                 <div class="item-left">
                     <div class="item-left-icon">
                         <i class="iconfont icon-bangongshichuzu-fanghao"></i>
@@ -90,10 +90,15 @@ export default {
             this.$router.push({path: '/houseIndex'})
         }, 
 
+        /*去往子页面*/
         // 去编辑房产
         goEditHouse(){
             this.$router.push({path: '/editHouse'})
-        } 
+        },
+        // 去往租客列表页面
+        goTenantList(){
+            this.$router.push({path: '/tenantList'})
+        },
     }
 }
 </script>
