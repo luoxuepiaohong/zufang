@@ -5,7 +5,7 @@
 		
 		<van-list class="history-tenant-list" v-model="loading" :finished="finished" :offset="100" finished-text="没有更多了" @load="onLoad">
         	<van-swipe-cell>
-				<div class="history-tenant-item">
+				<div class="history-tenant-item" @click="goBillList">
 					<div class="tenant-item-left">
 						<div class="tenant-item-left-icon">黄</div>
 						<div class="tenant-item-left-content">
@@ -61,10 +61,10 @@ export default {
         },
 
         /*去往子页面*/
-        // 去往房号详情页面
-        // goRoomDetails(){
-        // 	this.$router.push({path: '/roomDetails'})
-        // },
+        // 去往账单页面
+        goBillList(){
+        	this.$router.push({path: '/billList'})
+        },
         
         // 滚动加载
         onLoad() {
@@ -92,6 +92,8 @@ export default {
                 }
             });
         },
+
+
 
     }
 }

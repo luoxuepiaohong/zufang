@@ -27,6 +27,7 @@ const EditHouse = ()=>import("@/views/manageHouses/editHouse")
 const TenantList = ()=>import("@/views/manageHouses/tenantList")
 const HistoryTenant = ()=>import("@/views/manageHouses/historyTenant")
 const RoomDetails = ()=>import("@/views/manageHouses/roomDetails")
+const BillList = ()=>import("@/views/manageHouses/billList")
 
 
 Vue.use(Router)
@@ -179,6 +180,13 @@ const router = new Router({
                     path: '/historyTenant',
                     name: 'HistoryTenant',
                     component: HistoryTenant,
+                    children: [
+                      {
+                        path: '/billList',
+                        name: 'BillList',
+                        component: BillList,
+                      }
+                    ]
                   },
                   {
                     path: '/roomDetails',
