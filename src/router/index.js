@@ -28,7 +28,7 @@ const TenantList = ()=>import("@/views/manageHouses/tenantList")
 const HistoryTenant = ()=>import("@/views/manageHouses/historyTenant")
 const RoomDetails = ()=>import("@/views/manageHouses/roomDetails")
 const BillList = ()=>import("@/views/manageHouses/billList")
-
+const ViewRoomPhoto = ()=>import("@/views/manageHouses/viewRoomPhoto")
 
 Vue.use(Router)
 
@@ -192,6 +192,13 @@ const router = new Router({
                     path: '/roomDetails',
                     name: 'RoomDetails',
                     component: RoomDetails,
+                    children: [
+                      {
+                        path: '/viewRoomPhoto',
+                        name: 'ViewRoomPhoto',
+                        component: ViewRoomPhoto,
+                      }
+                    ]
                   }
                 ]
               }

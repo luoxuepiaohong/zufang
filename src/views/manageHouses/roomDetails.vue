@@ -131,7 +131,7 @@ export default {
         // 去往下一页
         goHousePhoto(){
             if(this.houseOption.room.room_data.img.length > 0){
-                this.$router.push({path: '/housePhoto', query: {imgList: houseOption.room.room_data.img}})
+                this.$router.push({path: '/viewRoomPhoto', query: {imgList: this.houseOption.room.room_data.img}})
             }
         },
         
