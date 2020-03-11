@@ -29,6 +29,10 @@ const HistoryTenant = ()=>import("@/views/manageHouses/historyTenant")
 const RoomDetails = ()=>import("@/views/manageHouses/roomDetails")
 const BillList = ()=>import("@/views/manageHouses/billList")
 const ViewRoomPhoto = ()=>import("@/views/manageHouses/viewRoomPhoto")
+const EditRoom = ()=>import("@/views/manageHouses/editRoom")
+//租客模块
+const AddTenant = ()=>import("@/views/manageTenant/addTenant")
+
 
 Vue.use(Router)
 
@@ -197,8 +201,31 @@ const router = new Router({
                         path: '/viewRoomPhoto',
                         name: 'ViewRoomPhoto',
                         component: ViewRoomPhoto,
+                      },
+                      {
+                        path: '/editRoom',
+                        name: 'EditRoom',
+                        component: EditRoom,
+                        children: [
+                          {
+                            path: '/editRoomPhoto',
+                            name: 'EditRoomPhoto',
+                            component: HousePhoto
+                          },
+                          {
+                            
+                            path: '/changeRoomConfig',
+                            name: 'RoomConfig',
+                            component: RoomConfig
+                          }
+                        ]
                       }
                     ]
+                  },
+                  {
+                    path: '/addTenant',
+                    name: 'AddTenant',
+                    component: AddTenant,
                   }
                 ]
               }

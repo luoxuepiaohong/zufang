@@ -22,15 +22,15 @@
             			<li class="operation-btn-item">智能表</li>
             			<li class="operation-btn-item">发布</li>
             			<li class="operation-btn-item">分享</li>
-            			<li class="operation-btn-item">修改</li>
+            			<li class="operation-btn-item" @click="editRoom">修改</li>
             			<li class="operation-btn-item" @click="delRoom">删除</li>
             		</ul>
             	</div>
             </header>
 
-            <div class="add-tenant-btn">
-            	<van-icon name="add" />添加租客
-            </div>
+            <router-link to="/addTenant" class="add-tenant-btn">
+            	<van-icon name="add"  />添加租客
+            </router-link>
 
             <ul class="tenant-list-show">
             	<van-swipe-cell>
@@ -50,7 +50,7 @@
         </section>
     
         <transition name="slide-right" mode="out-in">
-            <router-view ></router-view>
+            <router-view v-on:getEditRoomData="getEditRoomData"></router-view>
         </transition>
     </div>
 </template>
@@ -86,6 +86,9 @@ export default {
         goRoomDetails(){
         	this.$router.push({path: '/roomDetails'})
         },
+        editRoom(){
+        	this.$router.push({path: '/editRoom'})
+        },
 
         // 删除房间
         delRoom(){
@@ -98,6 +101,11 @@ export default {
 			}).catch(() => {
 			  	// on cancel
 			});
+        },
+
+        // 获取子页面数据
+        getEditRoomData(data){
+        	console.log(data);
         }
     }
 }

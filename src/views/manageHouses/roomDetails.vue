@@ -68,6 +68,12 @@
                     </ul>
                 </li>
             </ul>
+
+            <!-- 看房联系人 -->
+            <div class="linkman">
+                <span>看房联系人</span>
+                <span>黄先生&emsp;13800138000</span>
+            </div>
         </div>
         
         <!-- 底部操作按钮 -->
@@ -76,14 +82,14 @@
                 <li class="operation-btn-item">智能表</li>
                 <li class="operation-btn-item">发布</li>
                 <li class="operation-btn-item">分享</li>
-                <li class="operation-btn-item">修改</li>
+                <li class="operation-btn-item" @click="goEditRoom">修改</li>
                 <li class="operation-btn-item" @click="delRoom">删除</li>
             </ul>
         </footer>
 
     
         <transition name="slide-right" mode="out-in">
-            <router-view ></router-view>
+            <router-view v-on:getEditRoomData="getEditRoomData"></router-view>
         </transition>
     </div>
 </template>
@@ -96,7 +102,7 @@ export default {
         return {
             houseOption: {
                 house: {
-                    name: '东亚.世纪城',
+                    house_name: '东亚.世纪城',
 
                 },
                 room: {
@@ -134,6 +140,9 @@ export default {
                 this.$router.push({path: '/viewRoomPhoto', query: {imgList: this.houseOption.room.room_data.img}})
             }
         },
+        goEditRoom(){
+            this.$router.push({path: '/editRoom'})
+        },
         
 
         // 删除
@@ -147,6 +156,11 @@ export default {
             }).catch(() => {
                 // on cancel
             });
+        },
+
+        // 获取子页面数据
+        getEditRoomData(data){
+            console.log(data);
         }
     }
 }
@@ -265,6 +279,7 @@ export default {
 
             .other-info{
                 background: #fff;
+                margin-bottom: 8px;
                 .other-info-item{
                     border-top: 1px solid #f1f1f1;
                     &:first-child{
@@ -307,6 +322,15 @@ export default {
                     }
                 }
                 
+            }
+            .linkman{
+                background: #fff;
+                height: 45px;
+                padding: 5px 16px;
+                font-size: 14px;
+                display: flex;
+                justify-content: space-between;
+                flex-flow: column;
             }
         }
 
